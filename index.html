@@ -28,6 +28,32 @@
     }
     #legend b { color: #cfd8ff; font-weight: 500; }
 
+    /* Labels des constellations (centres cliquables) */
+    #labels { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+    .clabel {
+      position: absolute; transform: translate(-50%, -50%);
+      margin-top: 26px; /* sous l'anneau du centre */
+      pointer-events: auto; cursor: pointer; user-select: none; white-space: nowrap;
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 11px; letter-spacing: .06em;
+      background: rgba(10,14,32,.45); backdrop-filter: blur(4px);
+      border: 1px solid rgba(120,150,255,.18);
+      color: #aab4e0; text-shadow: 0 0 8px rgba(0,0,0,.9);
+      transition: background .15s, border-color .15s, color .15s, transform .15s;
+    }
+    .clabel:hover { color: #fff; border-color: rgba(150,180,255,.5); }
+    .clabel.on {
+      color: #fff; background: rgba(40,60,130,.6);
+      border-color: rgba(160,190,255,.7); box-shadow: 0 0 16px rgba(120,150,255,.35);
+    }
+    .clabel .ccount {
+      font-size: 9px; font-variant-numeric: tabular-nums;
+      color: #6f7bb0; background: rgba(255,255,255,.06);
+      padding: 1px 5px; border-radius: 999px;
+    }
+    .clabel.on .ccount { color: #cfd8ff; }
+
     /* Fiche détail flottante */
     #card {
       position: fixed; z-index: 20; min-width: 220px; max-width: 280px;
@@ -67,7 +93,7 @@
   <div id="legend">
     <div><b>Taille</b> = capitalisation &nbsp;·&nbsp; <b>Teinte</b> = volatilité (bleu→orange)</div>
     <div><b>Éclat</b> = volume &nbsp;·&nbsp; <b>Pulsation</b> = variation du jour</div>
-    <div style="margin-top:6px; color:#5a6498">glisser = pivoter · clic = plonger vers l'étoile · Échap = retour</div>
+    <div style="margin-top:6px; color:#5a6498">glisser = pivoter · clic sur un centre = déplier la constellation · clic sur une étoile = plonger · Échap = retour</div>
   </div>
 
   <div id="card"></div>

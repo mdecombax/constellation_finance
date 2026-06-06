@@ -298,9 +298,19 @@ function buildStars(assets) {
   const aBright = new Float32Array(n);
   const aPulse = new Float32Array(n);
   const aPhase = new Float32Array(n);
+  const aVisible = new Float32Array(n);          // 0 = masquée (défaut), 1 = révélée
+  const starSector = new Int32Array(n);          // index du secteur de chaque étoile (pour le picking)
+
+  // accumulateurs par secteur (couleur moyenne + liste d'indices)
+  const sectorList = sectors.map((name, si) => ({
+    name, si, dir: centers[name], indices: [],
+    color: new THREE.Color(0, 0, 0), pos: centers[name].clone().multiplyScalar(R),
+  }));
+  const sectorBySi = (a) => sectorList.find(s => s.name === (a.sector || '(ETF)'));
 
   assets.forEach((a, i) => {
-    const center = centers[a.sector || '(ETF)'];
+    const sec = sectorBySi(a);
+    const center = sec.dir;
     // direction = centre du secteur + jitter, renormalisée puis maintenue dans le dôme
     const dir = center.clone()
       .add(new THREE.Vector3().randomDirection().multiplyScalar(SECTOR_SPREAD))
@@ -314,7 +324,14 @@ function buildStars(assets) {
     aBright[i] = Math.max(0.45, Math.min(1.6, 0.55 + 0.6 * (a.volume_norm ?? 1)));
     aPulse[i] = Math.max(0, Math.min(1, Math.abs(a.change_pct ?? 0) / 5));
     aPhase[i] = Math.random() * Math.PI * 2;
+    aVisible[i] = 0;
+    starSector[i] = sec.si;
+    sec.indices.push(i);
+    sec.color.add(c);
   });
+
+  // couleur représentative = moyenne des volatilités du secteur
+  sectorList.forEach(s => { if (s.indices.length) s.color.multiplyScalar(1 / s.indices.length); });
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(position, 3));
@@ -323,19 +340,21 @@ function buildStars(assets) {
   geo.setAttribute('aBright', new THREE.BufferAttribute(aBright, 1));
   geo.setAttribute('aPulse', new THREE.BufferAttribute(aPulse, 1));
   geo.setAttribute('aPhase', new THREE.BufferAttribute(aPhase, 1));
+  geo.setAttribute('aVisible', new THREE.BufferAttribute(aVisible, 1));
 
   const mat = new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 }, uScale: { value: innerHeight / 2 } },
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `
-      attribute vec3 aColor; attribute float aSize, aBright, aPulse, aPhase;
+      attribute vec3 aColor; attribute float aSize, aBright, aPulse, aPhase, aVisible;
       uniform float uTime, uScale;
       varying vec3 vColor; varying float vBright;
       void main() {
         vColor = aColor; vBright = aBright;
         float pulse = 1.0 + 0.35 * aPulse * sin(uTime * 3.0 + aPhase);
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = aSize * pulse * (uScale / -mv.z);
+        // aVisible = 0 -> taille nulle -> étoile non rendue (constellation masquée)
+        gl_PointSize = aSize * pulse * aVisible * (uScale / -mv.z);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
@@ -352,15 +371,142 @@ function buildStars(assets) {
 
   const points = new THREE.Points(geo, mat);
   scene.add(points);
-  return { points, mat };
+  return { points, mat, geo, sectorList, starSector };
+}
+
+// ---------------------------------------------------------------------------
+// 5b. Centres de constellation : un marqueur (anneau) par secteur + lignes
+// ---------------------------------------------------------------------------
+function buildConstellations(sectorList, starPos) {
+  // --- marqueurs des centres (un anneau lumineux par secteur) ---
+  const m = sectorList.length;
+  const cPos = new Float32Array(m * 3);
+  const cColor = new Float32Array(m * 3);
+  const cOn = new Float32Array(m); // 1 quand la constellation est dépliée
+  sectorList.forEach((s, i) => {
+    cPos.set([s.pos.x, s.pos.y, s.pos.z], i * 3);
+    // teinte du marqueur : couleur secteur éclaircie pour rester lisible
+    const c = s.color.clone().lerp(new THREE.Color(1, 1, 1), 0.35);
+    cColor.set([c.r, c.g, c.b], i * 3);
+    cOn[i] = 0;
+  });
+  const cgeo = new THREE.BufferGeometry();
+  cgeo.setAttribute('position', new THREE.BufferAttribute(cPos, 3));
+  cgeo.setAttribute('aColor', new THREE.BufferAttribute(cColor, 3));
+  cgeo.setAttribute('aOn', new THREE.BufferAttribute(cOn, 1));
+  const cmat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uScale: { value: innerHeight / 2 } },
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      attribute vec3 aColor; attribute float aOn;
+      uniform float uTime, uScale;
+      varying vec3 vColor; varying float vOn;
+      void main() {
+        vColor = aColor; vOn = aOn;
+        float pulse = 1.0 + 0.12 * sin(uTime * 1.5);
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        float base = 26.0 + 8.0 * aOn;
+        gl_PointSize = base * pulse * (uScale / -mv.z);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      varying vec3 vColor; varying float vOn;
+      void main() {
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5) discard;
+        // anneau fin + petit coeur
+        float ring = smoothstep(0.50, 0.44, d) - smoothstep(0.40, 0.34, d);
+        float coreDot = smoothstep(0.16, 0.0, d);
+        float a = ring * (0.85 + 0.15 * vOn) + coreDot * (0.5 + 0.5 * vOn);
+        gl_FragColor = vec4(vColor * (1.0 + 0.6 * vOn), a);
+      }`
+  });
+  const centerPoints = new THREE.Points(cgeo, cmat);
+  centerPoints.renderOrder = 2;
+  scene.add(centerPoints);
+
+  // --- lignes de constellation : du centre vers chaque étoile du secteur ---
+  sectorList.forEach((s) => {
+    const k = s.indices.length;
+    const lp = new Float32Array(k * 2 * 3); // 2 sommets par segment
+    s.indices.forEach((idx, j) => {
+      lp.set([s.pos.x, s.pos.y, s.pos.z], j * 6);
+      lp.set([starPos.getX(idx), starPos.getY(idx), starPos.getZ(idx)], j * 6 + 3);
+    });
+    const lgeo = new THREE.BufferGeometry();
+    lgeo.setAttribute('position', new THREE.BufferAttribute(lp, 3));
+    const lmat = new THREE.LineBasicMaterial({
+      color: s.color.clone().lerp(new THREE.Color(1, 1, 1), 0.25),
+      transparent: true, opacity: 0.18, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    const lines = new THREE.LineSegments(lgeo, lmat);
+    lines.visible = false;
+    scene.add(lines);
+    s.lines = lines;
+    s.cgeo = cgeo; // pour basculer aOn
+  });
+
+  return { centerPoints, cmat, cgeo };
+}
+
+// ---------------------------------------------------------------------------
+// 5c. Labels HTML des constellations + bascule afficher/masquer les étoiles
+// ---------------------------------------------------------------------------
+const revealedSectors = new Set();
+
+function setupConstellations(sectorList, starGeo, centerCgeo) {
+  const wrap = document.createElement('div');
+  wrap.id = 'labels';
+  document.body.appendChild(wrap);
+
+  const vis = starGeo.getAttribute('aVisible');
+  const aOn = centerCgeo.getAttribute('aOn');
+
+  function toggleSector(s) {
+    const on = !revealedSectors.has(s.si);
+    if (on) revealedSectors.add(s.si); else revealedSectors.delete(s.si);
+    for (const idx of s.indices) vis.setX(idx, on ? 1 : 0);
+    vis.needsUpdate = true;
+    s.lines.visible = on;
+    aOn.setX(s.si, on ? 1 : 0); aOn.needsUpdate = true;
+    s.label.classList.toggle('on', on);
+  }
+
+  sectorList.forEach((s) => {
+    const el = document.createElement('div');
+    el.className = 'clabel';
+    el.innerHTML = `<span class="cname">${s.name}</span><span class="ccount">${s.indices.length}</span>`;
+    el.addEventListener('click', (e) => { e.stopPropagation(); toggleSector(s); });
+    wrap.appendChild(el);
+    s.label = el;
+  });
+
+  // projection des labels à chaque frame (cachés quand on plonge dans une étoile)
+  const v = new THREE.Vector3();
+  updaters.push(() => {
+    if (isZoomed) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    for (const s of sectorList) {
+      v.copy(s.pos).project(camera);
+      const el = s.label;
+      if (v.z > 1) { el.style.display = 'none'; continue; }
+      el.style.display = '';
+      el.style.left = ((v.x * 0.5 + 0.5) * innerWidth) + 'px';
+      el.style.top = ((-v.y * 0.5 + 0.5) * innerHeight) + 'px';
+    }
+  });
+
+  return { toggleSector };
 }
 
 // ---------------------------------------------------------------------------
 // 6. Interaction : clic → fiche détail
 // ---------------------------------------------------------------------------
-function setupPicking(points, assets) {
+function setupPicking(points, assets, ctx) {
   const ray = new THREE.Raycaster();
   ray.params.Points.threshold = 2.4;
+  const cray = new THREE.Raycaster();    // raycaster dédié aux centres (seuil plus large)
+  cray.params.Points.threshold = 5.0;
   const card = $('#card');
   const ndc = new THREE.Vector2();
   const pos = points.geometry.getAttribute('position');
@@ -392,12 +538,25 @@ function setupPicking(points, assets) {
     card.classList.add('on');
   }
 
-  renderer.domElement.addEventListener('click', (e) => {
+  function handlePick(clientX, clientY) {
     if (activeFlight) return; // on ignore les clics pendant un vol
-    ndc.x = (e.clientX / innerWidth) * 2 - 1;
-    ndc.y = -(e.clientY / innerHeight) * 2 + 1;
+    ndc.x = (clientX / innerWidth) * 2 - 1;
+    ndc.y = -(clientY / innerHeight) * 2 + 1;
+
+    // 1) priorité aux centres de constellation : clic = afficher/masquer le secteur
+    if (!isZoomed) {
+      cray.setFromCamera(ndc, camera);
+      const chits = cray.intersectObject(ctx.centerPoints);
+      if (chits.length) {
+        ctx.toggleSector(ctx.sectorList[chits[0].index]);
+        return;
+      }
+    }
+
+    // 2) sinon, on cible une étoile — mais seulement parmi les constellations dépliées
     ray.setFromCamera(ndc, camera);
-    const hits = ray.intersectObject(points);
+    const hits = ray.intersectObject(points)
+      .filter(h => revealedSectors.has(ctx.starSector[h.index]));
 
     if (!hits.length) {
       if (isZoomed) zoomOut(); // clic dans le vide → retour à la vue allongée
@@ -420,6 +579,27 @@ function setupPicking(points, assets) {
       setControlMode('inspect');
       showCard(a, starPos);
     });
+  }
+
+  // --- Distinguer un vrai tap (sélection) d'un glissé (navigation) ---------
+  // OrbitControls consomme le drag pour tourner la tête. On ne déclenche la
+  // sélection que si le pointeur a très peu bougé entre l'appui et le relâché :
+  // au-delà du seuil, le geste est une navigation et on l'ignore.
+  const DRAG_THRESHOLD = 6;     // px : tolérance de tremblement d'un clic franc
+  let downX = 0, downY = 0, tapValid = false;
+
+  renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) { tapValid = false; return; } // bouton gauche seulement
+    downX = e.clientX; downY = e.clientY;
+    tapValid = true;
+  });
+
+  renderer.domElement.addEventListener('pointerup', (e) => {
+    if (!tapValid) return;
+    tapValid = false;
+    const dx = e.clientX - downX, dy = e.clientY - downY;
+    if (dx * dx + dy * dy > DRAG_THRESHOLD * DRAG_THRESHOLD) return; // glissé → navigation, pas de sélection
+    handlePick(e.clientX, e.clientY);
   });
 }
 
@@ -435,15 +615,18 @@ async function boot() {
   addBackdrop();
   addMeadow();
   addBody();
-  const { mat } = buildStars(assets);
-  setupPicking(scene.children.find(o => o.isPoints && o.material === mat), assets);
+  const { points, mat, geo, sectorList, starSector } = buildStars(assets);
+  const { centerPoints, cmat, cgeo } = buildConstellations(sectorList, geo.getAttribute('position'));
+  const { toggleSector } = setupConstellations(sectorList, geo, cgeo);
+  setupPicking(points, assets, { sectorList, starSector, centerPoints, toggleSector });
 
   $('#hud-sub').textContent =
-    `${assets.length} actifs · ${new Date(doc.meta.generated_at).toLocaleDateString('fr-FR')}`;
+    `${assets.length} actifs · ${sectorList.length} constellations · clic = déplier`;
   $('#loader').classList.add('gone');
 
   // debug exposé en console (préférence projet)
-  window.debug = { THREE, scene, camera, controls, assets, mat, doc, bodyGroup };
+  window.debug = { THREE, scene, camera, controls, assets, mat, doc, bodyGroup,
+    sectorList, revealedSectors, toggleSector };
 
   const clock = new THREE.Clock();
   let elapsed = 0;
@@ -452,6 +635,7 @@ async function boot() {
     const dt = clock.getDelta();
     elapsed += dt;
     mat.uniforms.uTime.value = elapsed;
+    cmat.uniforms.uTime.value = elapsed;
     for (const u of updaters) u(elapsed, dt);
     if (activeFlight) updateFlight(dt);
     else controls.update();
