@@ -73,6 +73,42 @@
     #card .row span:last-child { color: #dfe6ff; font-variant-numeric: tabular-nums; }
     #card .chg.up { color: #54e09a; } #card .chg.down { color: #ff6b7d; }
 
+    /* Réticule de visée (mode navigation : on regarde, on n'a plus à cliquer-glisser) */
+    body.locked { cursor: none; }
+    #reticle {
+      position: fixed; left: 50%; top: 50%; z-index: 16;
+      width: 24px; height: 24px; margin: -12px 0 0 -12px;
+      pointer-events: none; opacity: 0;
+      transition: opacity .25s, transform .12s ease-out;
+    }
+    body.locked #reticle { opacity: .5; }
+    #reticle::before, #reticle::after {
+      content: ""; position: absolute; background: #cfd8ff;
+      box-shadow: 0 0 6px rgba(150,180,255,.85);
+    }
+    #reticle::before { left: 50%; top: 2px; bottom: 2px; width: 1px; margin-left: -.5px; }
+    #reticle::after  { top: 50%; left: 2px; right: 2px; height: 1px; margin-top: -.5px; }
+    /* cible accrochée (une étoile/un centre est sous le réticule) */
+    #reticle.hit { opacity: 1; transform: scale(1.4) rotate(45deg); }
+    #reticle.hit::before, #reticle.hit::after {
+      background: #fff; box-shadow: 0 0 11px rgba(190,210,255,1);
+    }
+
+    /* Invite à entrer en navigation (visible quand le curseur est libre) */
+    #nav-hint {
+      position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+      z-index: 16; pointer-events: none;
+      font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+      color: #b6c0ec; padding: 8px 18px; border-radius: 999px;
+      background: rgba(10,14,32,.5); backdrop-filter: blur(6px);
+      border: 1px solid rgba(120,150,255,.28);
+      box-shadow: 0 0 22px rgba(120,150,255,.2);
+      opacity: 0; transition: opacity .3s;
+      animation: navpulse 2.4s ease-in-out infinite;
+    }
+    body:not(.locked) #nav-hint { opacity: 1; }
+    @keyframes navpulse { 0%,100% { box-shadow: 0 0 14px rgba(120,150,255,.18); } 50% { box-shadow: 0 0 26px rgba(120,150,255,.38); } }
+
     /* Écran de chargement */
     #loader {
       position: fixed; inset: 0; z-index: 30; display: flex;
@@ -93,10 +129,12 @@
   <div id="legend">
     <div><b>Taille</b> = capitalisation &nbsp;·&nbsp; <b>Teinte</b> = volatilité (bleu→orange)</div>
     <div><b>Éclat</b> = volume &nbsp;·&nbsp; <b>Pulsation</b> = variation du jour</div>
-    <div style="margin-top:6px; color:#5a6498">glisser = pivoter · clic sur un centre = déplier la constellation · clic sur une étoile = plonger · Échap = retour</div>
+    <div style="margin-top:6px; color:#5a6498">bouge = regarder · clic = viser la cible du réticule (déplier / plonger) · molette = zoom · Échap = libérer le curseur</div>
   </div>
 
   <div id="card"></div>
+  <div id="reticle"></div>
+  <div id="nav-hint">clique pour explorer le ciel</div>
 
   <div id="loader">
     <div class="t">Celestial Market</div>

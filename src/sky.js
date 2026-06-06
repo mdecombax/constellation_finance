@@ -20,6 +20,10 @@ scene.fog = new THREE.FogExp2(0x02030a, 0.0016);
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 2000);
 camera.position.set(0.2, -2.4, 0.95); // allongé au sol, regard tourné vers le ciel (zénith)
 
+// Zoom optique (FOV) en contemplation : on grossit la portion de ciel visée,
+// "façon jumelles". Bien plus lisible que le dolly OrbitControls (la tête ne bouge pas).
+const FOV = { base: 62, min: 22, max: 62 };
+
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -27,22 +31,35 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
-controls.rotateSpeed = -0.25;      // négatif = on regarde depuis l'intérieur (la tête bouge)
+controls.enableRotate = false;     // la rotation est pilotée à la main (pointer lock, cf. §6) ;
+                                   // OrbitControls ne garde que le zoom + le damping + flyTo
+controls.rotateSpeed = -0.25;      // (conservé pour mémoire : sert de calibrage à la nav)
 controls.zoomSpeed = 0.7;
+controls.enableZoom = false;       // en contemplation : zoom FOV maison (cf. wheel ci-dessous) ;
+                                   // réactivé en mode 'inspect' où le dolly autour de l'étoile a du sens
 controls.minDistance = 0.1;
 controls.maxDistance = 4;          // on reste près du sol (l'observateur ne s'envole pas)
 controls.minPolarAngle = Math.PI * 0.46;  // ~83° : on peut pencher un peu vers l'horizon
 controls.maxPolarAngle = Math.PI * 0.99;  // ~178° : jusqu'au zénith, jamais sous le sol
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.06;   // drift très lent et contemplatif
+controls.autoRotate = false;       // pas de drift automatique : la vue reste fixe sans interaction
+controls.autoRotateSpeed = 0.06;
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
+
+// Molette / pinch trackpad → zoom optique en contemplation (le FOV se resserre).
+// En inspection d'une étoile, on laisse OrbitControls faire son dolly (enableZoom=true).
+renderer.domElement.addEventListener('wheel', (e) => {
+  if (isZoomed || activeFlight) return;           // 'inspect'/vol : géré ailleurs
+  e.preventDefault();
+  camera.fov = Math.max(FOV.min, Math.min(FOV.max, camera.fov + e.deltaY * 0.04));
+  camera.updateProjectionMatrix();
+}, { passive: false });
 
 // ---------------------------------------------------------------------------
 // Vol de caméra : "megazoom" vers une étoile au clic, retour au clic dans le vide
@@ -60,9 +77,13 @@ function setControlMode(mode) {
   if (mode === 'ground') {
     controls.minDistance = 0.1; controls.maxDistance = 4;
     controls.minPolarAngle = Math.PI * 0.46; controls.maxPolarAngle = Math.PI * 0.99;
+    controls.enableZoom = false;                 // zoom FOV (molette gérée à la main)
+    camera.fov = FOV.base; camera.updateProjectionMatrix(); // on repart d'une vue large
   } else { // 'inspect' : on tourne librement autour de l'étoile ciblée
     controls.minDistance = 2.5; controls.maxDistance = 70;
     controls.minPolarAngle = Math.PI * 0.04; controls.maxPolarAngle = Math.PI * 0.96;
+    controls.enableZoom = true;                  // dolly OrbitControls autour de l'étoile
+    camera.fov = FOV.base; camera.updateProjectionMatrix();
   }
   if (bodyGroup) bodyGroup.visible = (mode === 'ground'); // on cache son corps en plein vol
 }
@@ -99,11 +120,54 @@ function zoomOut() {
   if (card) card.classList.remove('on');
   flyTo(savedView.pos, savedView.tgt, 1.1, () => {
     setControlMode('ground');
-    controls.autoRotate = true;
   });
 }
 
 addEventListener('keydown', (e) => { if (e.key === 'Escape') zoomOut(); });
+
+// ---------------------------------------------------------------------------
+// Ondes de choc : anneaux lumineux qui se propagent depuis le centre d'un secteur
+// au moment où sa constellation éclôt (renfort visuel de l'explosion).
+// ---------------------------------------------------------------------------
+const activeShocks = [];
+const SHOCK_DUR = 0.7;
+
+function spawnShockwave(pos, color) {
+  // deux anneaux concentriques décalés → impression d'impulsion
+  for (let k = 0; k < 2; k++) {
+    const geo = new THREE.RingGeometry(0.80, 1.0, 64);
+    const mat = new THREE.MeshBasicMaterial({
+      color: color.clone().lerp(new THREE.Color(1, 1, 1), 0.55),
+      transparent: true, opacity: 0.9, depthWrite: false,
+      blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
+    });
+    const ring = new THREE.Mesh(geo, mat);
+    ring.position.copy(pos);
+    ring.renderOrder = 3;
+    scene.add(ring);
+    activeShocks.push({ ring, mat, t: -k * 0.12 }); // 2e anneau légèrement en retard
+  }
+}
+
+// mise à jour des ondes (poussée une fois, persistante)
+updaters.push((_elapsed, dt) => {
+  for (let i = activeShocks.length - 1; i >= 0; i--) {
+    const s = activeShocks[i];
+    s.t += dt;
+    if (s.t < 0) continue;                       // pas encore éclos (retard du 2e anneau)
+    const k = s.t / SHOCK_DUR;
+    if (k >= 1) {
+      scene.remove(s.ring);
+      s.ring.geometry.dispose(); s.mat.dispose();
+      activeShocks.splice(i, 1);
+      continue;
+    }
+    const e = 1 - Math.pow(1 - k, 3);            // easeOutCubic : départ vif
+    s.ring.scale.setScalar(2.0 + e * 17.0);
+    s.ring.lookAt(camera.position);              // billboard face caméra
+    s.mat.opacity = (1 - k) * 0.9;
+  }
+});
 
 // Direction aléatoire contrainte au dôme (y >= HORIZON_Y)
 function randomDomeDir() {
@@ -298,8 +362,11 @@ function buildStars(assets) {
   const aBright = new Float32Array(n);
   const aPulse = new Float32Array(n);
   const aPhase = new Float32Array(n);
-  const aVisible = new Float32Array(n);          // 0 = masquée (défaut), 1 = révélée
+  const aReveal = new Float32Array(n);           // 0 = masquée (défaut) → 1 = jaillie à sa place (continu, animé)
+  const aCenter = new Float32Array(n * 3);       // centre du secteur : point de départ de l'explosion
   const starSector = new Int32Array(n);          // index du secteur de chaque étoile (pour le picking)
+  const rawDist = new Float32Array(n);           // distance étoile→centre (sert au délai de ripple)
+  const staggerByIdx = new Float32Array(n);      // délai d'éclosion (s) par étoile : vague depuis le centre
 
   // accumulateurs par secteur (couleur moyenne + liste d'indices)
   const sectorList = sectors.map((name, si) => ({
@@ -324,7 +391,9 @@ function buildStars(assets) {
     aBright[i] = Math.max(0.45, Math.min(1.6, 0.55 + 0.6 * (a.volume_norm ?? 1)));
     aPulse[i] = Math.max(0, Math.min(1, Math.abs(a.change_pct ?? 0) / 5));
     aPhase[i] = Math.random() * Math.PI * 2;
-    aVisible[i] = 0;
+    aReveal[i] = 0;
+    aCenter.set([sec.pos.x, sec.pos.y, sec.pos.z], i * 3); // l'étoile part du centre du secteur
+    rawDist[i] = sec.pos.distanceTo(new THREE.Vector3(dir.x * R, dir.y * R, dir.z * R));
     starSector[i] = sec.si;
     sec.indices.push(i);
     sec.color.add(c);
@@ -333,6 +402,17 @@ function buildStars(assets) {
   // couleur représentative = moyenne des volatilités du secteur
   sectorList.forEach(s => { if (s.indices.length) s.color.multiplyScalar(1 / s.indices.length); });
 
+  // Délai d'éclosion par étoile : vague qui part du centre (les plus proches éclosent d'abord).
+  // Normalisé par secteur pour que chaque constellation, petite ou grande, explose pareil.
+  const STAGGER_SPAN = 0.42; // étalement total de la vague (s)
+  sectorList.forEach(s => {
+    let maxD = 1e-6;
+    for (const idx of s.indices) maxD = Math.max(maxD, rawDist[idx]);
+    for (const idx of s.indices) {
+      staggerByIdx[idx] = (rawDist[idx] / maxD) * STAGGER_SPAN + Math.random() * 0.06;
+    }
+  });
+
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(position, 3));
   geo.setAttribute('aColor', new THREE.BufferAttribute(aColor, 3));
@@ -340,38 +420,51 @@ function buildStars(assets) {
   geo.setAttribute('aBright', new THREE.BufferAttribute(aBright, 1));
   geo.setAttribute('aPulse', new THREE.BufferAttribute(aPulse, 1));
   geo.setAttribute('aPhase', new THREE.BufferAttribute(aPhase, 1));
-  geo.setAttribute('aVisible', new THREE.BufferAttribute(aVisible, 1));
+  geo.setAttribute('aReveal', new THREE.BufferAttribute(aReveal, 1));
+  geo.setAttribute('aCenter', new THREE.BufferAttribute(aCenter, 3));
 
   const mat = new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 }, uScale: { value: innerHeight / 2 } },
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `
-      attribute vec3 aColor; attribute float aSize, aBright, aPulse, aPhase, aVisible;
+      attribute vec3 aColor; attribute vec3 aCenter;
+      attribute float aSize, aBright, aPulse, aPhase, aReveal;
       uniform float uTime, uScale;
-      varying vec3 vColor; varying float vBright;
+      varying vec3 vColor; varying float vBright; varying float vReveal;
       void main() {
         vColor = aColor; vBright = aBright;
+        float r = clamp(aReveal, 0.0, 1.0);
+        vReveal = r;
+        // morph de position : jaillit du centre du secteur vers sa place (ease décélérée)
+        float e = r * r * (3.0 - 2.0 * r);
+        vec3 p = mix(aCenter, position, e);
         float pulse = 1.0 + 0.35 * aPulse * sin(uTime * 3.0 + aPhase);
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        // aVisible = 0 -> taille nulle -> étoile non rendue (constellation masquée)
-        gl_PointSize = aSize * pulse * aVisible * (uScale / -mv.z);
+        // enveloppe "pop" : croît vite puis dépasse (overshoot) avant de se caler à 1
+        float grow = smoothstep(0.0, 0.45, r);
+        float pop  = grow * (1.0 + 0.55 * sin(r * 3.14159));
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        // aReveal = 0 -> pop = 0 -> taille nulle -> étoile non rendue (constellation masquée)
+        gl_PointSize = aSize * pulse * pop * (uScale / -mv.z);
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
-      varying vec3 vColor; varying float vBright;
+      varying vec3 vColor; varying float vBright; varying float vReveal;
       void main() {
         vec2 uv = gl_PointCoord - 0.5;
         float d = length(uv);
         if (d > 0.5) discard;
         float core = smoothstep(0.5, 0.0, d);
         float glow = pow(core, 2.2);
-        gl_FragColor = vec4(vColor * vBright * (0.4 + glow), core);
+        // flash blanc au moment de l'éclosion (chaud au cœur de la vague, se résorbe)
+        float burst = smoothstep(0.55, 0.0, abs(vReveal - 0.45)) * (1.0 - smoothstep(0.0, 1.0, vReveal));
+        vec3 col = mix(vColor, vec3(1.0), burst * 0.6);
+        gl_FragColor = vec4(col * vBright * (0.4 + glow) + glow * burst, core);
       }`
   });
 
   const points = new THREE.Points(geo, mat);
   scene.add(points);
-  return { points, mat, geo, sectorList, starSector };
+  return { points, mat, geo, sectorList, starSector, staggerByIdx };
 }
 
 // ---------------------------------------------------------------------------
@@ -454,23 +547,61 @@ function buildConstellations(sectorList, starPos) {
 // ---------------------------------------------------------------------------
 const revealedSectors = new Set();
 
-function setupConstellations(sectorList, starGeo, centerCgeo) {
+function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
   const wrap = document.createElement('div');
   wrap.id = 'labels';
   document.body.appendChild(wrap);
 
-  const vis = starGeo.getAttribute('aVisible');
+  const vis = starGeo.getAttribute('aReveal');
   const aOn = centerCgeo.getAttribute('aOn');
+
+  const REVEAL_DUR = 0.5;        // durée d'éclosion d'une étoile (s) une fois son délai écoulé
+  const activeAnims = [];        // secteurs dont l'explosion / implosion est en cours
+  let nowT = 0;                  // temps écoulé courant (rafraîchi chaque frame)
 
   function toggleSector(s) {
     const on = !revealedSectors.has(s.si);
-    if (on) revealedSectors.add(s.si); else revealedSectors.delete(s.si);
-    for (const idx of s.indices) vis.setX(idx, on ? 1 : 0);
-    vis.needsUpdate = true;
-    s.lines.visible = on;
-    aOn.setX(s.si, on ? 1 : 0); aOn.needsUpdate = true;
+    if (on) {
+      revealedSectors.add(s.si);
+      s.lines.visible = true;
+      aOn.setX(s.si, 1);
+    } else {
+      revealedSectors.delete(s.si); // retirée tout de suite : non sélectionnable pendant l'implosion
+      aOn.setX(s.si, 0);
+    }
+    aOn.needsUpdate = true;
     s.label.classList.toggle('on', on);
+    s.anim = { dir: on ? 1 : -1, t0: nowT };
+    if (!activeAnims.includes(s)) activeAnims.push(s);
+    spawnShockwave(s.pos, s.color); // onde de choc au centre, dans les deux sens
   }
+
+  // Pilote l'explosion : chaque étoile éclôt après son délai, sur REVEAL_DUR.
+  updaters.push((elapsed) => {
+    nowT = elapsed;
+    if (!activeAnims.length) return;
+    for (let a = activeAnims.length - 1; a >= 0; a--) {
+      const s = activeAnims[a];
+      const anim = s.anim;
+      let done = true;
+      for (const idx of s.indices) {
+        const p = (elapsed - anim.t0 - staggerByIdx[idx]) / REVEAL_DUR;
+        let r = Math.max(0, Math.min(1, p));
+        if (anim.dir < 0) r = 1 - r;             // implosion = lecture inverse
+        vis.setX(idx, r);
+        if (anim.dir > 0 ? r < 1 : r > 0) done = false;
+      }
+      // les lignes se dessinent / s'effacent avec la vague
+      const lead = Math.max(0, Math.min(1, (elapsed - anim.t0) / (REVEAL_DUR * 1.4)));
+      if (s.lines.material) s.lines.material.opacity = (anim.dir > 0 ? lead : 1 - lead) * 0.18;
+      if (done) {
+        if (anim.dir < 0) s.lines.visible = false;
+        s.anim = null;
+        activeAnims.splice(a, 1);
+      }
+    }
+    vis.needsUpdate = true;
+  });
 
   sectorList.forEach((s) => {
     const el = document.createElement('div');
@@ -581,26 +712,71 @@ function setupPicking(points, assets, ctx) {
     });
   }
 
-  // --- Distinguer un vrai tap (sélection) d'un glissé (navigation) ---------
-  // OrbitControls consomme le drag pour tourner la tête. On ne déclenche la
-  // sélection que si le pointeur a très peu bougé entre l'appui et le relâché :
-  // au-delà du seuil, le geste est une navigation et on l'ignore.
-  const DRAG_THRESHOLD = 6;     // px : tolérance de tremblement d'un clic franc
-  let downX = 0, downY = 0, tapValid = false;
+  // --- Navigation Pointer Lock : la tête tourne en continu, sans re-clic ----
+  // État par défaut = curseur verrouillé. Le moindre mouvement du trackpad fait
+  // pivoter la tête, sans jamais buter sur un bord (mouvement relatif infini).
+  // On ne réécrit PAS OrbitControls : on tourne nous-mêmes camera.position autour
+  // de controls.target via un Spherical ; controls.update() (sans delta en attente)
+  // est idempotent et se contente de préserver/reclamper notre rotation.
+  const reticle = $('#reticle');
+  const sph = new THREE.Spherical();
+  const centerNdc = new THREE.Vector2(0, 0);   // réticule = centre exact de l'écran
+  // sens : multiplicateur ; signX/signY : orientation. Le facteur (π/2)/h calque
+  // l'ancien drag OrbitControls (2π · rotateSpeed 0.25 / hauteur) → ressenti identique.
+  const NAV = { sens: 1.0, signX: 1, signY: 1 };
 
-  renderer.domElement.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) { tapValid = false; return; } // bouton gauche seulement
-    downX = e.clientX; downY = e.clientY;
-    tapValid = true;
+  const isLocked = () => document.pointerLockElement === renderer.domElement;
+
+  function rotateHead(dx, dy) {
+    if (activeFlight) return;                   // pas de rotation pendant un vol caméra
+    const off = camera.position.clone().sub(controls.target);
+    sph.setFromVector3(off);
+    // sensibilité ∝ FOV : plus on est zoomé (FOV serré), plus on ralentit, pour que
+    // le ciel défile à la même vitesse à l'écran quel que soit le niveau de zoom.
+    const k = (Math.PI * 0.5) / innerHeight * NAV.sens * (camera.fov / FOV.base);
+    sph.theta += k * dx * NAV.signX;
+    sph.phi   += k * dy * NAV.signY;
+    sph.phi = Math.max(controls.minPolarAngle, Math.min(controls.maxPolarAngle, sph.phi));
+    sph.makeSafe();
+    off.setFromSpherical(sph);
+    camera.position.copy(controls.target).add(off);
+    camera.lookAt(controls.target);
+  }
+
+  document.addEventListener('mousemove', (e) => {
+    if (isLocked()) rotateHead(e.movementX || 0, e.movementY || 0);
   });
 
-  renderer.domElement.addEventListener('pointerup', (e) => {
-    if (!tapValid) return;
-    tapValid = false;
-    const dx = e.clientX - downX, dy = e.clientY - downY;
-    if (dx * dx + dy * dy > DRAG_THRESHOLD * DRAG_THRESHOLD) return; // glissé → navigation, pas de sélection
-    handlePick(e.clientX, e.clientY);
+  document.addEventListener('pointerlockchange', () => {
+    document.body.classList.toggle('locked', isLocked());
   });
+
+  // Clic : hors lock → (re)prendre la main et entrer en navigation ;
+  //        en lock  → sélectionner ce que vise le réticule (centre de l'écran).
+  renderer.domElement.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (isLocked()) handlePick(innerWidth / 2, innerHeight / 2);
+    else renderer.domElement.requestPointerLock();
+  });
+
+  // Retour visuel : le réticule s'accroche quand une cible cliquable est visée.
+  updaters.push(() => {
+    if (!reticle) return;
+    if (!isLocked()) { reticle.classList.remove('hit'); return; }
+    let hit = false;
+    if (!isZoomed) {
+      cray.setFromCamera(centerNdc, camera);
+      hit = cray.intersectObject(ctx.centerPoints).length > 0;
+    }
+    if (!hit) {
+      ray.setFromCamera(centerNdc, camera);
+      hit = ray.intersectObject(points).some(h => revealedSectors.has(ctx.starSector[h.index]));
+    }
+    reticle.classList.toggle('hit', hit);
+  });
+
+  // exposé pour calibrer la sensibilité depuis la console (préférence projet)
+  window.debug = Object.assign(window.debug || {}, { NAV });
 }
 
 // ---------------------------------------------------------------------------
@@ -615,18 +791,18 @@ async function boot() {
   addBackdrop();
   addMeadow();
   addBody();
-  const { points, mat, geo, sectorList, starSector } = buildStars(assets);
+  const { points, mat, geo, sectorList, starSector, staggerByIdx } = buildStars(assets);
   const { centerPoints, cmat, cgeo } = buildConstellations(sectorList, geo.getAttribute('position'));
-  const { toggleSector } = setupConstellations(sectorList, geo, cgeo);
+  const { toggleSector } = setupConstellations(sectorList, geo, cgeo, staggerByIdx);
   setupPicking(points, assets, { sectorList, starSector, centerPoints, toggleSector });
 
   $('#hud-sub').textContent =
     `${assets.length} actifs · ${sectorList.length} constellations · clic = déplier`;
   $('#loader').classList.add('gone');
 
-  // debug exposé en console (préférence projet)
-  window.debug = { THREE, scene, camera, controls, assets, mat, doc, bodyGroup,
-    sectorList, revealedSectors, toggleSector };
+  // debug exposé en console (préférence projet) — merge pour garder window.debug.NAV
+  window.debug = Object.assign(window.debug || {}, { THREE, scene, camera, controls,
+    assets, mat, doc, bodyGroup, sectorList, revealedSectors, toggleSector });
 
   const clock = new THREE.Clock();
   let elapsed = 0;
