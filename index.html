@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Celestial Market</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #02030a; }
+    canvas { display: block; }
+    body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #cfd8ff; }
+
+    /* HUD haut-gauche */
+    #hud {
+      position: fixed; top: 16px; left: 16px; z-index: 10;
+      font-size: 12px; line-height: 1.5; letter-spacing: .04em;
+      text-shadow: 0 0 8px rgba(0,0,0,.8); pointer-events: none;
+    }
+    #hud h1 { font-size: 15px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: #fff; margin-bottom: 4px; }
+    #hud .sub { color: #6f7bb0; }
+
+    /* Légende bas-gauche */
+    #legend {
+      position: fixed; bottom: 16px; left: 16px; z-index: 10;
+      font-size: 11px; color: #8893c8; line-height: 1.7;
+      text-shadow: 0 0 8px rgba(0,0,0,.8); pointer-events: none;
+    }
+    #legend b { color: #cfd8ff; font-weight: 500; }
+
+    /* Fiche détail flottante */
+    #card {
+      position: fixed; z-index: 20; min-width: 220px; max-width: 280px;
+      padding: 14px 16px; border-radius: 12px;
+      background: rgba(10,14,32,.82); backdrop-filter: blur(12px);
+      border: 1px solid rgba(120,150,255,.25);
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.03);
+      opacity: 0; transform: translateY(6px); transition: opacity .15s, transform .15s;
+      pointer-events: none;
+    }
+    #card.on { opacity: 1; transform: translateY(0); }
+    #card .tk { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: .04em; }
+    #card .nm { font-size: 11px; color: #7e8ac0; margin-bottom: 10px; }
+    #card .row { display: flex; justify-content: space-between; font-size: 12px;
+      padding: 3px 0; border-top: 1px solid rgba(255,255,255,.05); }
+    #card .row span:first-child { color: #6f7bb0; }
+    #card .row span:last-child { color: #dfe6ff; font-variant-numeric: tabular-nums; }
+    #card .chg.up { color: #54e09a; } #card .chg.down { color: #ff6b7d; }
+
+    /* Écran de chargement */
+    #loader {
+      position: fixed; inset: 0; z-index: 30; display: flex;
+      align-items: center; justify-content: center; flex-direction: column;
+      background: #02030a; transition: opacity .6s; gap: 10px;
+    }
+    #loader.gone { opacity: 0; pointer-events: none; }
+    #loader .t { letter-spacing: .3em; text-transform: uppercase; font-size: 13px; color: #8893c8; }
+    #loader .p { font-size: 11px; color: #4a5588; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <h1>Celestial Market</h1>
+    <div class="sub" id="hud-sub">chargement…</div>
+  </div>
+
+  <div id="legend">
+    <div><b>Taille</b> = capitalisation &nbsp;·&nbsp; <b>Teinte</b> = volatilité (bleu→orange)</div>
+    <div><b>Éclat</b> = volume &nbsp;·&nbsp; <b>Pulsation</b> = variation du jour</div>
+    <div style="margin-top:6px; color:#5a6498">glisser = pivoter · clic = plonger vers l'étoile · Échap = retour</div>
+  </div>
+
+  <div id="card"></div>
+
+  <div id="loader">
+    <div class="t">Celestial Market</div>
+    <div class="p" id="loader-p">initialisation…</div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="./src/sky.js"></script>
+</body>
+</html>

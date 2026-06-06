@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Captures d'écran de dev (à supprimer après usage)
+*.png
+
+# Instructions projet (local)
+CLAUDE.md
+
+# macOS
+.DS_Store
+
+# Outils
+.claude/
+.playwright-mcp/
+
+# Cache & logs du scraper
+scraper/.cache/
+
+# Secrets / clés API
+.env
+*.key
