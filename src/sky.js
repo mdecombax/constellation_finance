@@ -609,7 +609,8 @@ function buildConstellations(sectorList, starPos) {
 // ---------------------------------------------------------------------------
 // 5c. Labels HTML des constellations + bascule afficher/masquer les étoiles
 // ---------------------------------------------------------------------------
-const revealedSectors = new Set();
+const revealedSectors = new Set();      // état COURANT par si (vidé à chaque rebuild de jour)
+const revealedSectorNames = new Set();  // état PERSISTANT par nom : survit au changement de jour
 
 function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
   const wrap = document.createElement('div');
@@ -627,10 +628,12 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
     const on = !revealedSectors.has(s.si);
     if (on) {
       revealedSectors.add(s.si);
+      revealedSectorNames.add(s.name); // mémorise l'état pour le conserver au changement de jour
       s.lines.visible = true;
       aOn.setX(s.si, 1);
     } else {
       revealedSectors.delete(s.si); // retirée tout de suite : non sélectionnable pendant l'implosion
+      revealedSectorNames.delete(s.name);
       aOn.setX(s.si, 0);
     }
     aOn.needsUpdate = true;
@@ -675,6 +678,21 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
     wrap.appendChild(el);
     s.label = el;
   });
+
+  // Réapplique l'état déployé/replié hérité du jour précédent (apparié par nom de
+  // secteur, stable d'un jour à l'autre), instantanément : changer de jour ne doit
+  // pas replier les constellations que l'utilisateur avait ouvertes.
+  for (const s of sectorList) {
+    if (!revealedSectorNames.has(s.name)) continue;
+    revealedSectors.add(s.si);
+    aOn.setX(s.si, 1);
+    s.lines.visible = true;
+    if (s.lines.material) s.lines.material.opacity = 0.18;
+    s.label.classList.add('on');
+    for (const idx of s.indices) vis.setX(idx, 1);
+  }
+  aOn.needsUpdate = true;
+  vis.needsUpdate = true;
 
   // Bascule globale : rien d'ouvert → on déplie tout ; sinon → on replie tout ce qui est ouvert.
   function toggleAll() {
@@ -902,7 +920,7 @@ function disposeWorld() {
   world.sectorLines = [];
   if (world.labelsWrap) { world.labelsWrap.remove(); world.labelsWrap = null; }
   dayUpdaters.length = 0;        // on retire les animations du jour précédent
-  revealedSectors.clear();
+  revealedSectors.clear();       // état courant par si (revealedSectorNames est conservé exprès)
   $('#card')?.classList.remove('on');
 }
 
