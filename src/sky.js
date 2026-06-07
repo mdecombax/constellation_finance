@@ -75,7 +75,19 @@ let activeFlight = null;   // tween en cours
 let savedView = null;      // vue à restaurer au dézoom
 let isZoomed = false;
 let bodyGroup = null;      // corps FPS de l'observateur
-const updaters = [];       // animations du décor (lucioles…)
+const updaters = [];       // animations PERMANENTES du décor (lucioles, ondes…)
+const dayUpdaters = [];    // animations liées aux DONNÉES du jour (vidées au rebuild)
+
+// État mutable de la "scène data" courante (étoiles + constellations + picking).
+// Les listeners stables (souris, clavier) lisent ces refs ; au changement de jour,
+// buildWorld() reconstruit tout et réaffecte world.* — pas d'empilement de listeners.
+const world = {
+  points: null, geo: null, mat: null, cmat: null, assets: [],
+  sectorList: [], starSector: null, centerPoints: null, sectorLines: [],
+  labelsWrap: null,
+  toggleSector: () => {}, toggleAll: () => {},
+  handlePick: () => {}, rotateHead: () => {},
+};
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
@@ -629,7 +641,7 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
   }
 
   // Pilote l'explosion : chaque étoile éclôt après son délai, sur REVEAL_DUR.
-  updaters.push((elapsed) => {
+  dayUpdaters.push((elapsed) => {
     nowT = elapsed;
     if (!activeAnims.length) return;
     for (let a = activeAnims.length - 1; a >= 0; a--) {
@@ -672,13 +684,11 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
       if (anyOpen ? open : !open) toggleSector(s);
     }
   }
-  addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && !isZoomed) { e.preventDefault(); toggleAll(); }
-  });
+  // (la touche Espace → toggleAll est gérée une seule fois dans installControls)
 
   // projection des labels à chaque frame (cachés quand on plonge dans une étoile)
   const v = new THREE.Vector3();
-  updaters.push(() => {
+  dayUpdaters.push(() => {
     if (isZoomed) { wrap.style.display = 'none'; return; }
     wrap.style.display = '';
     for (const s of sectorList) {
@@ -691,7 +701,7 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
     }
   });
 
-  return { toggleSector, toggleAll };
+  return { toggleSector, toggleAll, wrap };
 }
 
 // ---------------------------------------------------------------------------
@@ -801,8 +811,6 @@ function setupPicking(points, assets, ctx) {
   // l'ancien drag OrbitControls (2π · rotateSpeed 0.25 / hauteur) → ressenti identique.
   const NAV = { sens: 1.0, signX: 1, signY: 1 };
 
-  const isLocked = () => document.pointerLockElement === renderer.domElement;
-
   function rotateHead(dx, dy) {
     if (activeFlight) return;                   // pas de rotation pendant un vol caméra
     // sensibilité ∝ FOV : plus on est zoomé (FOV serré), plus on ralentit, pour que
@@ -837,26 +845,13 @@ function setupPicking(points, assets, ctx) {
     camera.lookAt(controls.target);
   }
 
-  document.addEventListener('mousemove', (e) => {
-    if (isLocked()) rotateHead(e.movementX || 0, e.movementY || 0);
-  });
-
-  document.addEventListener('pointerlockchange', () => {
-    document.body.classList.toggle('locked', isLocked());
-  });
-
-  // Clic : hors lock → (re)prendre la main et entrer en navigation ;
-  //        en lock  → sélectionner ce que vise le réticule (centre de l'écran).
-  renderer.domElement.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
-    if (isLocked()) handlePick(innerWidth / 2, innerHeight / 2);
-    else renderer.domElement.requestPointerLock();
-  });
+  // (les listeners souris/pointer-lock sont installés une seule fois dans
+  //  installControls et délèguent à world.handlePick / world.rotateHead)
 
   // Retour visuel : le réticule s'accroche quand une cible cliquable est visée.
-  updaters.push(() => {
+  dayUpdaters.push(() => {
     if (!reticle) return;
-    if (!isLocked()) { reticle.classList.remove('hit'); return; }
+    if (document.pointerLockElement !== renderer.domElement) { reticle.classList.remove('hit'); return; }
     let hit = false;
     if (!isZoomed) {
       cray.setFromCamera(centerNdc, camera);
@@ -871,24 +866,161 @@ function setupPicking(points, assets, ctx) {
 
   // exposé pour calibrer la sensibilité depuis la console (préférence projet)
   window.debug = Object.assign(window.debug || {}, { NAV });
+  return { handlePick, rotateHead };
 }
 
 // ---------------------------------------------------------------------------
 // 7. Boot
 // ---------------------------------------------------------------------------
+
+// Charge un JSON gzippé (data/days/<date>.json.gz) et le décompresse côté client
+// via DecompressionStream (natif, zéro lib).
+async function loadGzJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`);
+  const stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+  const text = await new Response(stream).text();
+  return JSON.parse(text);
+}
+
+// Charge le manifest + la séance la plus récente. Fallback défensif sur
+// snapshot.json si l'index ou le .gz sont indisponibles.
+async function loadLatest() {
+  try {
+    const res = await fetch('./data/index.json');
+    if (!res.ok) throw new Error(`index.json HTTP ${res.status}`);
+    const index = await res.json();
+    if (!index.latest) throw new Error('index.json sans champ latest');
+    const doc = await loadGzJson(`./data/days/${index.latest}.json.gz`);
+    return { doc, index };
+  } catch (e) {
+    console.warn('[Celestial] index/gz indisponible, fallback snapshot.json :', e);
+    const doc = await fetch('./data/snapshot.json').then(r => r.json());
+    return { doc, index: null };
+  }
+}
+
+// Détruit la scène data courante (étoiles, constellations, labels, updaters) et
+// libère la mémoire GPU — appelé avant chaque (re)construction de jour.
+function disposeWorld() {
+  if (world.points) { scene.remove(world.points); world.points.geometry.dispose(); world.points.material.dispose(); }
+  if (world.centerPoints) { scene.remove(world.centerPoints); world.centerPoints.geometry.dispose(); world.centerPoints.material.dispose(); }
+  for (const ln of world.sectorLines) { scene.remove(ln); ln.geometry.dispose(); ln.material.dispose(); }
+  world.sectorLines = [];
+  if (world.labelsWrap) { world.labelsWrap.remove(); world.labelsWrap = null; }
+  dayUpdaters.length = 0;        // on retire les animations du jour précédent
+  revealedSectors.clear();
+  $('#card')?.classList.remove('on');
+}
+
+// (Re)construit la scène data pour un jeu d'actifs (un jour donné).
+function buildWorld(assets) {
+  disposeWorld();
+  isZoomed = false; activeFlight = null; setOrbitLimits(false); // état d'interaction neuf
+
+  const { points, mat, geo, sectorList, starSector, staggerByIdx } = buildStars(assets);
+  const { centerPoints, cmat, cgeo } = buildConstellations(sectorList, geo.getAttribute('position'));
+  const { toggleSector, toggleAll, wrap } = setupConstellations(sectorList, geo, cgeo, staggerByIdx);
+  const { handlePick, rotateHead } = setupPicking(
+    points, assets, { sectorList, starSector, centerPoints, toggleSector });
+
+  Object.assign(world, {
+    points, geo, mat, cmat, assets, sectorList, starSector, centerPoints,
+    sectorLines: sectorList.map(s => s.lines).filter(Boolean),
+    labelsWrap: wrap, toggleSector, toggleAll, handlePick, rotateHead,
+  });
+}
+
+// Listeners stables (attachés une seule fois) : ils délèguent à world.* qui est
+// réaffecté à chaque changement de jour — donc aucun empilement de handlers.
+function installControls() {
+  const isLocked = () => document.pointerLockElement === renderer.domElement;
+  document.addEventListener('mousemove', (e) => {
+    if (isLocked()) world.rotateHead(e.movementX || 0, e.movementY || 0);
+  });
+  document.addEventListener('pointerlockchange', () => {
+    document.body.classList.toggle('locked', isLocked());
+  });
+  renderer.domElement.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (isLocked()) world.handlePick(innerWidth / 2, innerHeight / 2);
+    else renderer.domElement.requestPointerLock();
+  });
+  addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !isZoomed) { e.preventDefault(); world.toggleAll(); }
+  });
+}
+
+const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
+              'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+function fmtDay(iso) {              // "2026-06-05" -> "05 juin 2026"
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${String(d).padStart(2, '0')} ${MOIS[m - 1]} ${y}`;
+}
+
+// Sélecteur de séance : flèches ◀ ▶ + touches ← → ; recharge le .gz du jour et
+// reconstruit la voûte. Désactivé aux bornes de l'historique.
+function setupDayNav(index) {
+  if (!index || !Array.isArray(index.days) || index.days.length === 0) return;
+  let i = index.days.indexOf(index.latest);
+  if (i < 0) i = index.days.length - 1;
+
+  const bar = document.createElement('div');
+  bar.id = 'daynav';
+  bar.innerHTML =
+    `<button id="dn-prev" aria-label="jour précédent">◀</button>` +
+    `<span id="dn-date"></span>` +
+    `<button id="dn-next" aria-label="jour suivant">▶</button>`;
+  document.body.appendChild(bar);
+  const prev = bar.querySelector('#dn-prev');
+  const next = bar.querySelector('#dn-next');
+  const lbl = bar.querySelector('#dn-date');
+  let busy = false;
+
+  function render() {
+    lbl.textContent = busy ? '…' : fmtDay(index.days[i]);
+    prev.disabled = busy || i <= 0;                       // ◀ = jour plus ancien
+    next.disabled = busy || i >= index.days.length - 1;   // ▶ = jour plus récent
+  }
+
+  async function go(delta) {
+    const j = i + delta;
+    if (busy || j < 0 || j >= index.days.length) return;
+    busy = true; render();
+    try {
+      const doc = await loadGzJson(`./data/days/${index.days[j]}.json.gz`);
+      i = j;
+      buildWorld(doc.assets);
+      window.debug.doc = doc; window.debug.assets = doc.assets;
+    } catch (e) {
+      console.error('[Celestial] changement de jour échoué :', e);
+    } finally {
+      busy = false; render();
+    }
+  }
+
+  prev.addEventListener('click', () => go(-1));
+  next.addEventListener('click', () => go(1));
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') go(-1);
+    else if (e.key === 'ArrowRight') go(1);
+  });
+
+  render();
+}
+
 async function boot() {
   loaderP.textContent = 'chargement des données…';
-  const doc = await fetch('./data/snapshot.json').then(r => r.json());
+  const { doc, index } = await loadLatest();
   const assets = doc.assets;
   loaderP.textContent = `construction de ${assets.length} étoiles…`;
 
   addBackdrop();
   addMeadow();
   addBody();
-  const { points, mat, geo, sectorList, starSector, staggerByIdx } = buildStars(assets);
-  const { centerPoints, cmat, cgeo } = buildConstellations(sectorList, geo.getAttribute('position'));
-  const { toggleSector, toggleAll } = setupConstellations(sectorList, geo, cgeo, staggerByIdx);
-  setupPicking(points, assets, { sectorList, starSector, centerPoints, toggleSector });
+  installControls();      // listeners stables, une seule fois
+  buildWorld(assets);     // étoiles + constellations + picking du jour
+  setupDayNav(index);     // flèches ◀ ▶ entre séances
 
   $('#hud-sub').textContent =
     `tour d'horizon = secteurs · hauteur = $ échangés aujourd'hui · clic = déplier · espace = tout déplier/replier`;
@@ -896,7 +1028,7 @@ async function boot() {
 
   // debug exposé en console (préférence projet) — merge pour garder window.debug.NAV
   window.debug = Object.assign(window.debug || {}, { THREE, scene, camera, controls,
-    assets, mat, doc, bodyGroup, sectorList, revealedSectors, toggleSector, toggleAll });
+    doc, index, world, bodyGroup, revealedSectors, assets });
 
   const clock = new THREE.Clock();
   let elapsed = 0;
@@ -904,9 +1036,10 @@ async function boot() {
     requestAnimationFrame(animate);
     const dt = clock.getDelta();
     elapsed += dt;
-    mat.uniforms.uTime.value = elapsed;
-    cmat.uniforms.uTime.value = elapsed;
+    if (world.mat) world.mat.uniforms.uTime.value = elapsed;
+    if (world.cmat) world.cmat.uniforms.uTime.value = elapsed;
     for (const u of updaters) u(elapsed, dt);
+    for (const u of dayUpdaters) u(elapsed, dt);
     if (activeFlight) updateFlight(dt);
     else controls.update();
     renderer.render(scene, camera);
