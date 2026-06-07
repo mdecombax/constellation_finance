@@ -4,9 +4,16 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const R = 100;            // rayon de la voûte
-const SECTOR_SPREAD = 0.55; // étalement des étoiles autour du centre de leur secteur
 const HORIZON_Y = 0.06;   // hauteur min des étoiles (au-dessus de l'horizon = dôme hémisphérique)
 const GROUND_Y = -2.7;    // niveau du sol (juste sous l'observateur allongé)
+
+// Disposition de la voûte — deux gestes du corps, deux dimensions :
+//   azimut (où l'on tourne la tête)  = secteur → un "quartier" du ciel par secteur
+//   élévation (jusqu'où l'on lève les yeux) = dollar volume du jour → les plus gros
+//   brasseurs culminent au zénith, les endormis rasent l'horizon.
+const EL_MIN = 0.12;       // élévation mini (~7°, juste au-dessus de l'horizon)
+const EL_MAX = 1.45;       // élévation maxi (~83°, proche zénith sans converger en un point)
+const QUARTER_FILL = 0.7;  // part du quartier azimutal réellement occupée (gap entre secteurs)
 
 const $ = (s) => document.querySelector(s);
 const loaderP = $('#loader-p');
@@ -67,33 +74,35 @@ renderer.domElement.addEventListener('wheel', (e) => {
 let activeFlight = null;   // tween en cours
 let savedView = null;      // vue à restaurer au dézoom
 let isZoomed = false;
-let bodyGroup = null;      // corps FPS (caché en mode inspection)
+let bodyGroup = null;      // corps FPS de l'observateur
 const updaters = [];       // animations du décor (lucioles…)
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-// Deux jeux de limites OrbitControls : allongé au sol vs. inspection d'une étoile
-function setControlMode(mode) {
-  if (mode === 'ground') {
+const STANDOFF = 8;   // distance d'arrêt devant l'étoile au bout du plongeon (effet "cœur")
+const LOOK_R   = 2;   // rayon de la cible FPS : on regarde un point proche, pivot = la caméra
+
+// Limites OrbitControls. Au sol : on reste allongé (faible distance, on ne regarde
+// que le ciel). Zoomé près d'une étoile : on relâche tout pour pouvoir tourner la
+// tête à 360° en FPS sans qu'OrbitControls reclampe distance/angle à chaque frame.
+function setOrbitLimits(zoomed) {
+  if (zoomed) {
+    controls.minDistance = 0.1; controls.maxDistance = 1e4;
+    controls.minPolarAngle = 0.001; controls.maxPolarAngle = Math.PI - 0.001;
+  } else {
     controls.minDistance = 0.1; controls.maxDistance = 4;
     controls.minPolarAngle = Math.PI * 0.46; controls.maxPolarAngle = Math.PI * 0.99;
-    controls.enableZoom = false;                 // zoom FOV (molette gérée à la main)
-    camera.fov = FOV.base; camera.updateProjectionMatrix(); // on repart d'une vue large
-  } else { // 'inspect' : on tourne librement autour de l'étoile ciblée
-    controls.minDistance = 2.5; controls.maxDistance = 70;
-    controls.minPolarAngle = Math.PI * 0.04; controls.maxPolarAngle = Math.PI * 0.96;
-    controls.enableZoom = true;                  // dolly OrbitControls autour de l'étoile
-    camera.fov = FOV.base; camera.updateProjectionMatrix();
   }
-  if (bodyGroup) bodyGroup.visible = (mode === 'ground'); // on cache son corps en plein vol
 }
 
-function flyTo(destPos, lookAt, dur, onArrive) {
+// Tween de caméra : plongeon vers une étoile (position + cible + FOV) puis retour.
+function flyTo(destPos, lookAt, dur, onArrive, toFov) {
   controls.autoRotate = false;
   controls.enabled = false;
   activeFlight = {
     fromPos: camera.position.clone(), toPos: destPos.clone(),
     fromTgt: controls.target.clone(), toTgt: lookAt.clone(),
+    fromFov: camera.fov, toFov: toFov ?? camera.fov,
     t: 0, dur, onArrive,
   };
 }
@@ -105,6 +114,10 @@ function updateFlight(dt) {
   camera.position.lerpVectors(f.fromPos, f.toPos, k);
   controls.target.lerpVectors(f.fromTgt, f.toTgt, k);
   camera.lookAt(controls.target);
+  if (f.fromFov !== f.toFov) {
+    camera.fov = f.fromFov + (f.toFov - f.fromFov) * k;
+    camera.updateProjectionMatrix();
+  }
   if (f.t >= 1) {
     activeFlight = null;
     controls.enabled = true;
@@ -118,9 +131,10 @@ function zoomOut() {
   isZoomed = false;
   const card = $('#card');
   if (card) card.classList.remove('on');
-  flyTo(savedView.pos, savedView.tgt, 1.1, () => {
-    setControlMode('ground');
-  });
+  // Grand retour : on revole jusqu'à la vue allongée dans la prairie, puis on
+  // restaure les limites "sol" une fois posé.
+  flyTo(savedView.pos, savedView.tgt, 1.1, () => setOrbitLimits(false),
+    savedView ? savedView.fov : FOV.base);
 }
 
 addEventListener('keydown', (e) => { if (e.key === 'Escape') zoomOut(); });
@@ -317,17 +331,23 @@ function addBody() {
 // ---------------------------------------------------------------------------
 // 3. Placement par secteur (centres répartis en spirale de Fibonacci)
 // ---------------------------------------------------------------------------
-// Centres répartis sur le DÔME (hémisphère supérieur), du zénith vers l'horizon
-function fibonacciDir(i, total) {
-  const y = 0.95 - (i + 0.5) / total * (0.95 - (HORIZON_Y + 0.05));
-  const r = Math.sqrt(Math.max(0, 1 - y * y));
-  const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-  return new THREE.Vector3(Math.cos(theta) * r, y, Math.sin(theta) * r);
+// Direction unitaire depuis un azimut (tour d'horizon) et une élévation (horizon→zénith).
+// y = sin(el) : zénith → y=1, horizon → y≈0. Le vecteur est déjà normé.
+function dirFromAzEl(az, el) {
+  const cE = Math.cos(el), sE = Math.sin(el);
+  return new THREE.Vector3(Math.cos(az) * cE, sE, Math.sin(az) * cE);
 }
 
+// Un secteur = un quartier d'azimut. Son "centre" (marqueur + départ d'explosion)
+// se pose à mi-hauteur du dôme, dans la direction du quartier.
 function sectorCenters(sectors) {
   const centers = {};
-  sectors.forEach((s, i) => { centers[s] = fibonacciDir(i, sectors.length); });
+  const m = sectors.length;
+  const elMid = (EL_MIN + EL_MAX) / 2;
+  sectors.forEach((s, i) => {
+    const az = ((i + 0.5) / m) * Math.PI * 2;
+    centers[s] = dirFromAzEl(az, elMid);
+  });
   return centers;
 }
 
@@ -375,14 +395,29 @@ function buildStars(assets) {
   }));
   const sectorBySi = (a) => sectorList.find(s => s.name === (a.sector || '(ETF)'));
 
+  // Élévation = dollar volume du jour (prix × volume, échelle log), borné par quantiles
+  // robustes (p2/p98) pour qu'une poignée d'extrêmes n'écrase pas toute la voûte.
+  const dvLog = assets.map(a => (a.price > 0 && a.volume > 0) ? Math.log10(a.price * a.volume) : null);
+  const sortedDv = dvLog.filter(v => v != null).sort((x, y) => x - y);
+  const dvAt = (p) => sortedDv[Math.floor(p * (sortedDv.length - 1))];
+  const DV_LO = dvAt(0.02), DV_HI = dvAt(0.98);
+  const elevOf = (i) => {
+    const v = dvLog[i];
+    const t = v == null ? 0 : Math.max(0, Math.min(1, (v - DV_LO) / (DV_HI - DV_LO)));
+    return EL_MIN + t * (EL_MAX - EL_MIN);
+  };
+
+  // Azimut = quartier du secteur (largeur utile QUARTER_FILL, gap entre quartiers)
+  const m = sectors.length;
+  const quarterWidth = (Math.PI * 2 / m) * QUARTER_FILL;
+
   assets.forEach((a, i) => {
     const sec = sectorBySi(a);
-    const center = sec.dir;
-    // direction = centre du secteur + jitter, renormalisée puis maintenue dans le dôme
-    const dir = center.clone()
-      .add(new THREE.Vector3().randomDirection().multiplyScalar(SECTOR_SPREAD))
-      .normalize();
-    if (dir.y < HORIZON_Y) { dir.y = HORIZON_Y; dir.normalize(); }
+    // azimut : centre du quartier du secteur + jitter contenu dans le quartier
+    const az = ((sec.si + 0.5) / m) * Math.PI * 2 + (Math.random() - 0.5) * quarterWidth;
+    // élévation : dollar volume + léger bruit pour l'épaisseur (sans brouiller la lecture)
+    const el = elevOf(i) + (Math.random() - 0.5) * 0.06;
+    const dir = dirFromAzEl(az, el);
     position.set([dir.x * R, dir.y * R, dir.z * R], i * 3);
 
     const c = volatilityColor(a.volatility_30d);
@@ -430,7 +465,7 @@ function buildStars(assets) {
       attribute vec3 aColor; attribute vec3 aCenter;
       attribute float aSize, aBright, aPulse, aPhase, aReveal;
       uniform float uTime, uScale;
-      varying vec3 vColor; varying float vBright; varying float vReveal;
+      varying vec3 vColor; varying float vBright; varying float vReveal; varying float vSize;
       void main() {
         vColor = aColor; vBright = aBright;
         float r = clamp(aReveal, 0.0, 1.0);
@@ -438,27 +473,44 @@ function buildStars(assets) {
         // morph de position : jaillit du centre du secteur vers sa place (ease décélérée)
         float e = r * r * (3.0 - 2.0 * r);
         vec3 p = mix(aCenter, position, e);
-        float pulse = 1.0 + 0.35 * aPulse * sin(uTime * 3.0 + aPhase);
+        // pulsation désactivée pour l'instant (aPulse conservé pour réactivation future)
         // enveloppe "pop" : croît vite puis dépasse (overshoot) avant de se caler à 1
         float grow = smoothstep(0.0, 0.45, r);
         float pop  = grow * (1.0 + 0.55 * sin(r * 3.14159));
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         // aReveal = 0 -> pop = 0 -> taille nulle -> étoile non rendue (constellation masquée)
-        gl_PointSize = aSize * pulse * pop * (uScale / -mv.z);
+        gl_PointSize = aSize * pop * (uScale / -mv.z);
+        vSize = gl_PointSize;   // taille à l'écran (px) → pilote l'apparition des pics
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
-      varying vec3 vColor; varying float vBright; varying float vReveal;
+      varying vec3 vColor; varying float vBright; varying float vReveal; varying float vSize;
       void main() {
-        vec2 uv = gl_PointCoord - 0.5;
+        vec2 uv = gl_PointCoord - 0.5;          // [-0.5, 0.5]
         float d = length(uv);
         if (d > 0.5) discard;
-        float core = smoothstep(0.5, 0.0, d);
-        float glow = pow(core, 2.2);
+
+        // cœur net + halo serré : un point dense, pas un disque mou
+        float disk = smoothstep(0.5, 0.0, d);
+        float halo = pow(disk, 2.4);            // halo doux qui retombe vite (garde la teinte)
+        float core = pow(disk, 7.0);            // cœur resserré, très brillant (blanchit)
+
+        // pics de diffraction (croix 4 branches), thickness ~10% du sprite
+        vec2 a = abs(uv);
+        float spikeH = pow(max(0.0, 1.0 - a.y / 0.05), 2.0) * smoothstep(0.5, 0.0, a.x);
+        float spikeV = pow(max(0.0, 1.0 - a.x / 0.05), 2.0) * smoothstep(0.5, 0.0, a.y);
+        // n'apparaissent que quand l'étoile devient grosse à l'écran (flyTo / approche)
+        float spikeAmt = smoothstep(40.0, 120.0, vSize);
+        float spikes = (spikeH + spikeV) * spikeAmt * 0.7;
+
         // flash blanc au moment de l'éclosion (chaud au cœur de la vague, se résorbe)
         float burst = smoothstep(0.55, 0.0, abs(vReveal - 0.45)) * (1.0 - smoothstep(0.0, 1.0, vReveal));
-        vec3 col = mix(vColor, vec3(1.0), burst * 0.6);
-        gl_FragColor = vec4(col * vBright * (0.4 + glow) + glow * burst, core);
+
+        // profil d'intensité (forme) porté par l'alpha (cf. AdditiveBlending)
+        float shape = clamp(0.3 * halo + core + spikes, 0.0, 1.0);
+        // le cœur et les pics tendent vers le blanc ; le halo conserve la couleur
+        vec3 col = mix(vColor, vec3(1.0), clamp(core * 0.9 + burst * 0.6, 0.0, 1.0));
+        gl_FragColor = vec4(col * vBright + halo * burst, shape);
       }`
   });
 
@@ -612,6 +664,18 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
     s.label = el;
   });
 
+  // Bascule globale : rien d'ouvert → on déplie tout ; sinon → on replie tout ce qui est ouvert.
+  function toggleAll() {
+    const anyOpen = revealedSectors.size > 0;
+    for (const s of sectorList) {
+      const open = revealedSectors.has(s.si);
+      if (anyOpen ? open : !open) toggleSector(s);
+    }
+  }
+  addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !isZoomed) { e.preventDefault(); toggleAll(); }
+  });
+
   // projection des labels à chaque frame (cachés quand on plonge dans une étoile)
   const v = new THREE.Vector3();
   updaters.push(() => {
@@ -627,7 +691,7 @@ function setupConstellations(sectorList, starGeo, centerCgeo, staggerByIdx) {
     }
   });
 
-  return { toggleSector };
+  return { toggleSector, toggleAll };
 }
 
 // ---------------------------------------------------------------------------
@@ -658,6 +722,7 @@ function setupPicking(points, assets, ctx) {
       <div class="row"><span>Variation</span><span class="chg ${up ? 'up' : 'down'}">${up ? '+' : ''}${(a.change_pct ?? 0).toFixed(2)} %</span></div>
       <div class="row"><span>Prix</span><span>${a.price != null ? a.price.toFixed(2) + ' $' : '—'}</span></div>
       <div class="row"><span>Capitalisation</span><span>${fmtCap(a.market_cap)}</span></div>
+      <div class="row"><span>Volume échangé ($)</span><span>${fmtCap((a.price ?? 0) * (a.volume ?? 0))}</span></div>
       <div class="row"><span>Secteur</span><span>${a.sector ?? a.asset_type}</span></div>
       <div class="row"><span>Volatilité 30j</span><span>${a.volatility_30d != null ? (a.volatility_30d * 100).toFixed(2) + ' %' : '—'}</span></div>
       <div class="row"><span>Beta</span><span>${a.beta ?? '—'}</span></div>`;
@@ -684,10 +749,15 @@ function setupPicking(points, assets, ctx) {
       }
     }
 
-    // 2) sinon, on cible une étoile — mais seulement parmi les constellations dépliées
+    // 2) sinon, on cible une étoile — mais seulement parmi les constellations dépliées.
+    // Three.js trie les hits de Points par profondeur (distance caméra) : dans un
+    // groupe serré au réticule, ça privilégie l'étoile la plus proche plutôt que
+    // celle qu'on vise vraiment. On retrie par angle au réticule
+    // (distanceToRay / distance) → la mieux centrée à l'écran gagne.
     ray.setFromCamera(ndc, camera);
     const hits = ray.intersectObject(points)
-      .filter(h => revealedSectors.has(ctx.starSector[h.index]));
+      .filter(h => revealedSectors.has(ctx.starSector[h.index]))
+      .sort((a, b) => (a.distanceToRay / a.distance) - (b.distanceToRay / b.distance));
 
     if (!hits.length) {
       if (isZoomed) zoomOut(); // clic dans le vide → retour à la vue allongée
@@ -698,18 +768,24 @@ function setupPicking(points, assets, ctx) {
     const a = assets[idx];
     const starPos = new THREE.Vector3(pos.getX(idx), pos.getY(idx), pos.getZ(idx));
 
-    // mémoriser la vue d'origine au premier plongeon
-    if (!isZoomed) savedView = { pos: camera.position.clone(), tgt: controls.target.clone() };
+    // Plongeon cinématique jusqu'au "cœur" de l'étoile, puis bascule en regard
+    // FPS (tête qui pivote sur place) : on garde l'effet wow ET la liberté de
+    // viser les voisines. Cliquer une voisine relance un plongeon vers elle.
+    if (!isZoomed) {
+      savedView = { pos: camera.position.clone(), tgt: controls.target.clone(), fov: camera.fov };
+    }
     isZoomed = true;
-    card.classList.remove('on'); // cachée pendant le vol
-
-    // destination : juste devant l'étoile (sur le rayon observateur→étoile)
-    const standoff = 8;
-    const dest = starPos.clone().multiplyScalar((R - standoff) / R);
+    card.classList.remove('on'); // cachée pendant le plongeon
+    const dest = starPos.clone().multiplyScalar((R - STANDOFF) / R); // arrêt devant l'étoile
     flyTo(dest, starPos, 1.0, () => {
-      setControlMode('inspect');
+      setOrbitLimits(true);
+      // On rapproche la cible à LOOK_R devant la caméra, dans l'axe de l'étoile :
+      // le regard ne change pas (cible alignée), mais le pivot devient la caméra.
+      const dir = starPos.clone().sub(camera.position).normalize();
+      controls.target.copy(camera.position).addScaledVector(dir, LOOK_R);
+      camera.lookAt(controls.target);
       showCard(a, starPos);
-    });
+    }, FOV.base);
   }
 
   // --- Navigation Pointer Lock : la tête tourne en continu, sans re-clic ----
@@ -729,11 +805,29 @@ function setupPicking(points, assets, ctx) {
 
   function rotateHead(dx, dy) {
     if (activeFlight) return;                   // pas de rotation pendant un vol caméra
-    const off = camera.position.clone().sub(controls.target);
-    sph.setFromVector3(off);
     // sensibilité ∝ FOV : plus on est zoomé (FOV serré), plus on ralentit, pour que
     // le ciel défile à la même vitesse à l'écran quel que soit le niveau de zoom.
     const k = (Math.PI * 0.5) / innerHeight * NAV.sens * (camera.fov / FOV.base);
+    if (isZoomed) {
+      // FPS : la caméra reste sur place, c'est le regard (la cible) qui pivote
+      // autour d'elle → on peut balayer les étoiles voisines tout autour.
+      const dir = controls.target.clone().sub(camera.position);
+      const len = dir.length();
+      sph.setFromVector3(dir);
+      sph.theta += k * dx * NAV.signX;
+      // phi inversé vs. le sol : ici on pivote la direction du regard (et non
+      // l'offset caméra↔cible, qui est le vecteur opposé) → même ressenti vertical.
+      sph.phi   -= k * dy * NAV.signY;
+      sph.phi = Math.max(0.06, Math.min(Math.PI - 0.06, sph.phi)); // anti-bascule
+      sph.makeSafe();
+      dir.setFromSpherical(sph).setLength(len);
+      controls.target.copy(camera.position).add(dir);
+      camera.lookAt(controls.target);
+      return;
+    }
+    // Sol : la tête pivote autour du point d'observation (on regarde la voûte).
+    const off = camera.position.clone().sub(controls.target);
+    sph.setFromVector3(off);
     sph.theta += k * dx * NAV.signX;
     sph.phi   += k * dy * NAV.signY;
     sph.phi = Math.max(controls.minPolarAngle, Math.min(controls.maxPolarAngle, sph.phi));
@@ -793,16 +887,16 @@ async function boot() {
   addBody();
   const { points, mat, geo, sectorList, starSector, staggerByIdx } = buildStars(assets);
   const { centerPoints, cmat, cgeo } = buildConstellations(sectorList, geo.getAttribute('position'));
-  const { toggleSector } = setupConstellations(sectorList, geo, cgeo, staggerByIdx);
+  const { toggleSector, toggleAll } = setupConstellations(sectorList, geo, cgeo, staggerByIdx);
   setupPicking(points, assets, { sectorList, starSector, centerPoints, toggleSector });
 
   $('#hud-sub').textContent =
-    `${assets.length} actifs · ${sectorList.length} constellations · clic = déplier`;
+    `tour d'horizon = secteurs · hauteur = $ échangés aujourd'hui · clic = déplier · espace = tout déplier/replier`;
   $('#loader').classList.add('gone');
 
   // debug exposé en console (préférence projet) — merge pour garder window.debug.NAV
   window.debug = Object.assign(window.debug || {}, { THREE, scene, camera, controls,
-    assets, mat, doc, bodyGroup, sectorList, revealedSectors, toggleSector });
+    assets, mat, doc, bodyGroup, sectorList, revealedSectors, toggleSector, toggleAll });
 
   const clock = new THREE.Clock();
   let elapsed = 0;
