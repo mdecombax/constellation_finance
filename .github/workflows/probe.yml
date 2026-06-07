@@ -20,5 +20,9 @@ jobs:
       - name: Install deps
         run: pip install curl_cffi
 
-      - name: Run probe
+      - name: Run probe (quote)
         run: python scraper/probe_yahoo.py
+
+      - name: Run probe (chart/spark diagnostic)
+        if: always()
+        run: python scraper/probe_chart.py
