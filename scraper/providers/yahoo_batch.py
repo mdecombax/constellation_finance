@@ -41,7 +41,7 @@ def fetch_quotes(session, crumb, symbols):
         "fields": ("symbol,longName,shortName,quoteType,fullExchangeName,"
                    "marketCap,netAssets,regularMarketPrice,regularMarketOpen,"
                    "regularMarketVolume,averageDailyVolume3Month,"
-                   "regularMarketChangePercent"),
+                   "regularMarketChangePercent,regularMarketTime"),
     }
     r = session.get(QUOTE_URL, params=params, timeout=20)
     r.raise_for_status()
