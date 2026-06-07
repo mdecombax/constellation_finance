@@ -1,0 +1,38 @@
+name: Scrape test (dérisquage rate-limit)
+
+# Fait tourner le VRAI run.py à pleine échelle sur un runner GitHub, SANS commit.
+# But : voir si Yahoo rate-limite (401/429) à 4000 actifs + passes 2a/2b multithread.
+on:
+  workflow_dispatch:
+    inputs:
+      n:
+        description: "Nombre d'actifs visés (TARGET)"
+        required: true
+        default: "4000"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install curl_cffi
+
+      - name: Run scraper (no commit)
+        run: python scraper/run.py ${{ inputs.n }}
+
+      - name: Upload snapshot artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-${{ inputs.n }}
+          path: data/snapshot.json
+          if-no-files-found: warn
