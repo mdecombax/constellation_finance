@@ -61,13 +61,18 @@ def pass2_profiles(session, crumb, syms):
     return dict(profs)
 
 
-def pass2_volatility(session, syms):
-    print(f"Passe 2b : volatilité 30j sur {len(syms)} actifs...", flush=True)
+def pass2_volatility(syms):
+    """Volatilité 30j via spark batch (~50 sym/req, séquentiel).
+
+    Remplace l'ancienne version multithread (4000 requêtes chart) qui se faisait
+    rate-limiter (429) depuis les IP datacenter -> volatilité à 0/4000.
+    """
+    print(f"Passe 2b : volatilité 30j (spark batch) sur {len(syms)} actifs...",
+          flush=True)
     t0 = time.time()
-    with ThreadPoolExecutor(max_workers=VOL_WORKERS) as ex:
-        vols = list(ex.map(lambda s: (s, yb.fetch_volatility(session, s)), syms))
+    vols = yb.fetch_volatility_batch(syms, batch_size=20, pause=0.3)
     print(f"Passe 2b OK en {time.time()-t0:.0f}s", flush=True)
-    return dict(vols)
+    return vols
 
 
 def assemble(universe, quotes, syms, profiles, vols, now):
@@ -117,7 +122,7 @@ def main():
 
     session, crumb = yb.make_session()
     profiles = pass2_profiles(session, crumb, syms)
-    vols = pass2_volatility(session, syms)
+    vols = pass2_volatility(syms)
 
     now = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     assets = assemble(universe, quotes, syms, profiles, vols, now)

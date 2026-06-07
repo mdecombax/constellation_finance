@@ -107,9 +107,26 @@ def fetch_profile(session, crumb, sym):
         return {"sector": None, "beta": None}
 
 
-def fetch_volatility(session, sym):
-    """Écart-type des rendements log quotidiens sur ~30 séances (chart endpoint)."""
+SPARK_URL = "https://query1.finance.yahoo.com/v7/finance/spark"
+
+
+def _vol_from_closes(closes):
+    """Écart-type des rendements log quotidiens sur ~30 séances."""
     import math
+    closes = [c for c in (closes or []) if c]
+    if len(closes) < 5:
+        return None
+    rets = [math.log(closes[i] / closes[i - 1])
+            for i in range(1, len(closes))][-30:]
+    if len(rets) < 2:
+        return None
+    mean = sum(rets) / len(rets)
+    var = sum((x - mean) ** 2 for x in rets) / (len(rets) - 1)
+    return round(math.sqrt(var), 4)
+
+
+def fetch_volatility(session, sym):
+    """Volatilité 30j d'UN symbole (chart endpoint). Conservé pour usage unitaire."""
     try:
         r = session.get(CHART_URL.format(sym=sym),
                         params={"range": "2mo", "interval": "1d"}, timeout=15)
@@ -118,18 +135,52 @@ def fetch_volatility(session, sym):
         res = r.json().get("chart", {}).get("result")
         if not res:
             return None
-        closes = [c for c in res[0]["indicators"]["quote"][0]["close"] if c]
-        if len(closes) < 5:
-            return None
-        rets = [math.log(closes[i] / closes[i - 1])
-                for i in range(1, len(closes))][-30:]
-        if len(rets) < 2:
-            return None
-        mean = sum(rets) / len(rets)
-        var = sum((x - mean) ** 2 for x in rets) / (len(rets) - 1)
-        return round(math.sqrt(var), 4)
+        return _vol_from_closes(res[0]["indicators"]["quote"][0]["close"])
     except Exception:
         return None
+
+
+def fetch_volatility_batch(symbols, batch_size=20, pause=0.3, max_retries=3,
+                           log=print):
+    """Volatilité 30j EN LOT via l'endpoint spark (max 20 sym/req côté Yahoo).
+
+    Bien plus robuste que 4000 requêtes chart individuelles : ~80 requêtes
+    séquentielles au lieu d'une rafale multithread qui déclenche le rate-limit
+    429 de Yahoo depuis les IP datacenter. Retourne {symbol: vol|None}.
+    """
+    session, crumb = make_session()
+    out = {}
+    total = len(symbols)
+    for i in range(0, total, batch_size):
+        lot = symbols[i:i + batch_size]
+        for attempt in range(max_retries):
+            try:
+                r = session.get(SPARK_URL, params={
+                    "symbols": ",".join(lot),
+                    "range": "2mo", "interval": "1d"}, timeout=20)
+                r.raise_for_status()
+                res = r.json().get("spark", {}).get("result", []) or []
+                for item in res:
+                    sym = item.get("symbol")
+                    try:
+                        closes = item["response"][0]["indicators"]["quote"][0]["close"]
+                        out[sym] = _vol_from_closes(closes)
+                    except Exception:
+                        out[sym] = None
+                break
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    log(f"  spark lot {i}-{i+len(lot)} échoué: {e}")
+                else:
+                    time.sleep(1.0 + attempt)
+                    try:
+                        session, crumb = make_session()
+                    except Exception:
+                        pass
+        if (i // batch_size) % 10 == 0:
+            log(f"  [spark] {min(i+batch_size, total)}/{total} | ok={len(out)}")
+        time.sleep(pause)
+    return out
 
 
 if __name__ == "__main__":
