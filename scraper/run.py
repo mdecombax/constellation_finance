@@ -8,9 +8,8 @@ Pipeline robuste (session curl_cffi + crumb gérés une fois) :
   Passe 2b spark batch (20 sym/req) -> volatility_30d.
 
 Sorties :
-  data/days/<date-séance>.json.gz  (un fichier par séance, compressé)
+  data/days/<date-séance>.json.gz  (un fichier par séance, compressé — source unique)
   data/index.json                  (manifest : days[], latest)
-  data/snapshot.json               (compat app actuelle ; retiré à l'étape de nettoyage)
   data/profiles.json               (cache cumulatif sector/beta)
 
 Usage : python run.py [N]   (N = nombre d'actifs visés, défaut 4000)
@@ -34,7 +33,6 @@ from universe import build_universe
 from transform import safe_log10, volume_norm, change_pct
 
 DATA = os.path.join(HERE, "..", "data")
-OUT = os.path.join(DATA, "snapshot.json")
 DAYS_DIR = os.path.join(DATA, "days")
 INDEX = os.path.join(DATA, "index.json")
 PROFILES = os.path.join(DATA, "profiles.json")
@@ -178,7 +176,7 @@ def assemble(universe, quotes, syms, cache, vols, now):
 
 
 def write_outputs(doc, sess_date):
-    """Écrit le jour gzippé, reconstruit l'index, et garde snapshot.json (compat).
+    """Écrit le jour gzippé et reconstruit l'index.
     L'index est reconstruit depuis le dossier days/ -> jamais de doublon de date."""
     os.makedirs(DAYS_DIR, exist_ok=True)
     raw = json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
@@ -187,9 +185,6 @@ def write_outputs(doc, sess_date):
     is_new = not os.path.exists(gz_path)
     with gzip.open(gz_path, "wb", compresslevel=9) as f:
         f.write(raw)
-
-    with open(OUT, "w") as f:  # compat app actuelle (non compressé)
-        json.dump(doc, f, ensure_ascii=False, indent=2)
 
     days = sorted(fn[:-len(".json.gz")] for fn in os.listdir(DAYS_DIR)
                   if fn.endswith(".json.gz"))

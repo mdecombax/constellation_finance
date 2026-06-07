@@ -23,7 +23,6 @@ sys.path.insert(0, os.path.join(HERE, "providers"))
 import yahoo_batch as yb  # noqa: E402
 
 DATA = os.path.join(HERE, "..", "data")
-SNAP = os.path.join(DATA, "snapshot.json")
 DAYS_DIR = os.path.join(DATA, "days")
 INDEX = os.path.join(DATA, "index.json")
 NY = ZoneInfo("America/New_York")
@@ -107,8 +106,8 @@ def build_asset(base, series, ti):
 
 
 def main():
-    snap = json.load(open(SNAP))
-    bases = snap["assets"]
+    idx = json.load(open(INDEX))
+    bases = json.load(gzip.open(os.path.join(DAYS_DIR, f"{idx['latest']}.json.gz")))["assets"]
     print(f"Reconstruction de {TARGET} pour {len(bases)} actifs (endpoint chart)...",
           flush=True)
 

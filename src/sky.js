@@ -883,21 +883,14 @@ async function loadGzJson(url) {
   return JSON.parse(text);
 }
 
-// Charge le manifest + la séance la plus récente. Fallback défensif sur
-// snapshot.json si l'index ou le .gz sont indisponibles.
+// Charge le manifest + la séance la plus récente (format daté .json.gz = source unique).
 async function loadLatest() {
-  try {
-    const res = await fetch('./data/index.json');
-    if (!res.ok) throw new Error(`index.json HTTP ${res.status}`);
-    const index = await res.json();
-    if (!index.latest) throw new Error('index.json sans champ latest');
-    const doc = await loadGzJson(`./data/days/${index.latest}.json.gz`);
-    return { doc, index };
-  } catch (e) {
-    console.warn('[Celestial] index/gz indisponible, fallback snapshot.json :', e);
-    const doc = await fetch('./data/snapshot.json').then(r => r.json());
-    return { doc, index: null };
-  }
+  const res = await fetch('./data/index.json');
+  if (!res.ok) throw new Error(`index.json introuvable (HTTP ${res.status})`);
+  const index = await res.json();
+  if (!index.latest) throw new Error('index.json sans champ "latest"');
+  const doc = await loadGzJson(`./data/days/${index.latest}.json.gz`);
+  return { doc, index };
 }
 
 // Détruit la scène data courante (étoiles, constellations, labels, updaters) et

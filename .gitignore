@@ -19,6 +19,9 @@ CLAUDE.md
 # Cache & logs du scraper
 scraper/.cache/
 
+# Snapshot non compressé : remplacé par data/days/<date>.json.gz (source unique)
+data/snapshot.json
+
 # Secrets / clés API
 .env
 *.key
