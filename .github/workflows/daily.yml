@@ -1,0 +1,53 @@
+name: Données quotidiennes
+
+# Récupère la séance du jour après la clôture US et la commite dans le repo.
+# 22:30 UTC = 17:30 ET (hiver) / 18:30 ET (été) — la séance est consolidée chez Yahoo.
+# Lun→ven seulement (pas de séance le week-end). GitHub n'ajuste pas l'heure d'été :
+# 22:30 UTC reste après la clôture toute l'année.
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-data
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install curl_cffi
+
+      - name: Scrape
+        run: python scraper/run.py 4000
+
+      - name: Commit si nouvelle séance
+        run: |
+          git config user.name "mdecombax"
+          git config user.email "martin.decombarieu@gmail.com"
+          git add data/
+          # Garde-fou : on ne commite QUE si un nouveau fichier de séance est apparu
+          # (statut 'A' dans data/days/). Un simple refresh (jour férié) -> pas de commit.
+          if git diff --cached --name-status -- data/days/ | grep -q '^A'; then
+            NEW=$(git diff --cached --name-status -- data/days/ | grep '^A' | awk '{print $2}' | xargs -n1 basename | sed 's/.json.gz//' | tr '\n' ' ')
+            echo "Nouvelle(s) séance(s) : $NEW"
+            git commit -m "Données de séance $NEW (auto)"
+            git push
+          else
+            echo "Pas de nouvelle séance — rien à committer."
+            git reset
+          fi
