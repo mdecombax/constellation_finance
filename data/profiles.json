@@ -4235,6 +4235,10 @@
 "beta": 1.46,
 "sector": "Industrials"
 },
+"GCMG": {
+"beta": 0.871,
+"sector": "Financial Services"
+},
 "GCT": {
 "beta": 1.818,
 "sector": "Technology"
@@ -5229,6 +5233,10 @@
 "INMD": {
 "beta": 1.975,
 "sector": "Healthcare"
+},
+"INN": {
+"beta": 1.278,
+"sector": "Real Estate"
 },
 "INNV": {
 "beta": 0.487,
@@ -10752,6 +10760,10 @@
 },
 "WAL": {
 "beta": 1.362,
+"sector": "Financial Services"
+},
+"WASH": {
+"beta": 0.742,
 "sector": "Financial Services"
 },
 "WAT": {
