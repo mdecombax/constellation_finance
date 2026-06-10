@@ -1907,6 +1907,10 @@
 "beta": 1.904,
 "sector": "Industrials"
 },
+"CARE": {
+"beta": 0.551,
+"sector": "Financial Services"
+},
 "CARG": {
 "beta": 1.276,
 "sector": "Consumer Cyclical"
@@ -2991,6 +2995,10 @@
 "beta": 0.282,
 "sector": "Consumer Defensive"
 },
+"DGICA": {
+"beta": -0.007,
+"sector": "Financial Services"
+},
 "DGICB": {
 "beta": -0.013,
 "sector": "Financial Services"
@@ -3102,6 +3110,10 @@
 "DNTH": {
 "beta": 0.089,
 "sector": "Healthcare"
+},
+"DNUT": {
+"beta": 1.267,
+"sector": "Consumer Defensive"
 },
 "DOC": {
 "beta": 0.979,
@@ -3371,6 +3383,10 @@
 "beta": 1.211,
 "sector": "Consumer Defensive"
 },
+"ELA": {
+"beta": 0.39,
+"sector": "Consumer Cyclical"
+},
 "ELAN": {
 "beta": 1.687,
 "sector": "Healthcare"
@@ -3554,6 +3570,9 @@
 "ERO": {
 "beta": 1.56,
 "sector": "Basic Materials"
+},
+"EROC": {
+"sector": "Industrials"
 },
 "ES": {
 "beta": 0.749,
@@ -3765,6 +3784,9 @@
 },
 "FA": {
 "beta": 1.148,
+"sector": "Industrials"
+},
+"FAC": {
 "sector": "Industrials"
 },
 "FAF": {
@@ -4425,6 +4447,9 @@
 },
 "GMED": {
 "beta": 1.003,
+"sector": "Healthcare"
+},
+"GMRS": {
 "sector": "Healthcare"
 },
 "GNK": {
@@ -6328,6 +6353,10 @@
 "beta": 1.359,
 "sector": "Consumer Cyclical"
 },
+"MCS": {
+"beta": 0.547,
+"sector": "Communication Services"
+},
 "MCY": {
 "beta": 0.939,
 "sector": "Financial Services"
@@ -7738,6 +7767,9 @@
 "PBI": {
 "beta": 1.636,
 "sector": "Industrials"
+},
+"PBLS": {
+"sector": "Healthcare"
 },
 "PBR": {
 "beta": -0.064,
