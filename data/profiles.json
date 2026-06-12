@@ -1235,6 +1235,9 @@
 "beta": null,
 "sector": "Financial Services"
 },
+"BBNX": {
+"sector": "Healthcare"
+},
 "BBOT": {
 "beta": 0.221,
 "sector": "Healthcare"
@@ -4736,6 +4739,10 @@
 "beta": 0.953,
 "sector": "Industrials"
 },
+"HELE": {
+"beta": 1.33,
+"sector": "Consumer Defensive"
+},
 "HESM": {
 "beta": 0.522,
 "sector": "Energy"
@@ -7983,6 +7990,10 @@
 "beta": 0.467,
 "sector": "Healthcare"
 },
+"PINC": {
+"beta": 0.612,
+"sector": "Healthcare"
+},
 "PINS": {
 "beta": 0.923,
 "sector": "Communication Services"
@@ -8326,6 +8337,9 @@
 "PWR": {
 "beta": 1.244,
 "sector": "Industrials"
+},
+"PWRL": {
+"sector": "Financial Services"
 },
 "PXED": {
 "beta": null,
@@ -10076,6 +10090,10 @@
 "TRIP": {
 "beta": 0.914,
 "sector": "Consumer Cyclical"
+},
+"TRLV": {
+"beta": 1.863,
+"sector": "Healthcare"
 },
 "TRMB": {
 "beta": 1.453,
