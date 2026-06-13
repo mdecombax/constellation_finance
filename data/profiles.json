@@ -827,6 +827,10 @@
 "beta": 0.934,
 "sector": "Energy"
 },
+"AROW": {
+"beta": 0.762,
+"sector": "Financial Services"
+},
 "ARQT": {
 "beta": 1.586,
 "sector": "Healthcare"
@@ -7420,6 +7424,10 @@
 "beta": 0.817,
 "sector": "Basic Materials"
 },
+"ODD": {
+"beta": 2.476,
+"sector": "Consumer Defensive"
+},
 "ODFL": {
 "beta": 1.172,
 "sector": "Industrials"
@@ -7974,6 +7982,9 @@
 "beta": -2.335,
 "sector": "Healthcare"
 },
+"PHYS": {
+"sector": "Financial Services"
+},
 "PI": {
 "beta": 1.932,
 "sector": "Technology"
@@ -8249,6 +8260,9 @@
 "PSKY": {
 "beta": 1.45,
 "sector": "Communication Services"
+},
+"PSLV": {
+"sector": "Financial Services"
 },
 "PSMT": {
 "beta": 0.78,
@@ -9403,6 +9417,9 @@
 "SPB": {
 "beta": 0.669,
 "sector": "Consumer Defensive"
+},
+"SPCX": {
+"sector": "Industrials"
 },
 "SPFI": {
 "beta": 0.483,
@@ -10731,6 +10748,9 @@
 "beta": 0.301,
 "sector": "Healthcare"
 },
+"VRXA": {
+"sector": "Healthcare"
+},
 "VSAT": {
 "beta": 1.671,
 "sector": "Technology"
@@ -11170,6 +11190,10 @@
 "XOM": {
 "beta": 0.183,
 "sector": "Energy"
+},
+"XOMA": {
+"beta": 0.87,
+"sector": "Healthcare"
 },
 "XP": {
 "beta": 1.189,
