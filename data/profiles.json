@@ -4871,6 +4871,9 @@
 "beta": 0.811,
 "sector": "Industrials"
 },
+"HONAV": {
+"sector": "Industrials"
+},
 "HOOD": {
 "beta": 2.294,
 "sector": "Financial Services"
@@ -9242,6 +9245,9 @@
 "beta": 0.731,
 "sector": "Energy"
 },
+"SLBT": {
+"sector": "Healthcare"
+},
 "SLDB": {
 "beta": 2.467,
 "sector": "Healthcare"
@@ -11312,6 +11318,10 @@
 },
 "ZS": {
 "beta": 0.962,
+"sector": "Technology"
+},
+"ZSQR": {
+"beta": -0.211,
 "sector": "Technology"
 },
 "ZTS": {
