@@ -9816,6 +9816,10 @@
 "beta": 0.34,
 "sector": "Communication Services"
 },
+"TDUP": {
+"beta": 2.063,
+"sector": "Consumer Cyclical"
+},
 "TDW": {
 "beta": 0.572,
 "sector": "Energy"
