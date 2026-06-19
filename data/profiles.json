@@ -6263,6 +6263,10 @@
 "beta": 1.675,
 "sector": "Basic Materials"
 },
+"MAMA": {
+"beta": 0.61,
+"sector": "Consumer Defensive"
+},
 "MAN": {
 "beta": 0.722,
 "sector": "Industrials"
