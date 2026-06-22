@@ -1870,6 +1870,10 @@
 "beta": 0.538,
 "sector": "Technology"
 },
+"CADL": {
+"beta": -0.482,
+"sector": "Healthcare"
+},
 "CAE": {
 "beta": 1.025,
 "sector": "Industrials"
@@ -2313,6 +2317,10 @@
 "CLX": {
 "beta": 0.575,
 "sector": "Consumer Defensive"
+},
+"CLYM": {
+"beta": 0.102,
+"sector": "Healthcare"
 },
 "CM": {
 "beta": 1.302,
@@ -3960,6 +3968,9 @@
 "beta": 0.651,
 "sector": "Financial Services"
 },
+"FISN": {
+"sector": "Industrials"
+},
 "FITB": {
 "beta": 0.955,
 "sector": "Financial Services"
@@ -5210,6 +5221,10 @@
 "beta": 0.623,
 "sector": "Consumer Defensive"
 },
+"IMMX": {
+"beta": 0.105,
+"sector": "Healthcare"
+},
 "IMNM": {
 "beta": 2.115,
 "sector": "Healthcare"
@@ -5566,6 +5581,9 @@
 },
 "KALV": {
 "beta": -0.121,
+"sector": "Healthcare"
+},
+"KARD": {
 "sector": "Healthcare"
 },
 "KARO": {
@@ -7243,6 +7261,10 @@
 "beta": 1.008,
 "sector": "Financial Services"
 },
+"NUAI": {
+"beta": 1.283,
+"sector": "Technology"
+},
 "NUE": {
 "beta": 1.884,
 "sector": "Basic Materials"
@@ -7262,6 +7284,10 @@
 "NUVL": {
 "beta": 1.153,
 "sector": "Healthcare"
+},
+"NVA": {
+"beta": 0.789,
+"sector": "Basic Materials"
 },
 "NVAX": {
 "beta": 2.369,
@@ -8628,6 +8654,10 @@
 "RIG": {
 "beta": 1.338,
 "sector": "Energy"
+},
+"RIGL": {
+"beta": 1.181,
+"sector": "Healthcare"
 },
 "RIO": {
 "beta": 0.63,
