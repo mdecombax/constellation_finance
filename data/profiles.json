@@ -1542,6 +1542,10 @@
 "beta": 0.805,
 "sector": "Financial Services"
 },
+"BLZE": {
+"beta": 1.723,
+"sector": "Technology"
+},
 "BMA": {
 "beta": 0.465,
 "sector": "Financial Services"
@@ -2273,6 +2277,10 @@
 "CLBT": {
 "beta": 1.146,
 "sector": "Technology"
+},
+"CLDT": {
+"beta": 1.13,
+"sector": "Real Estate"
 },
 "CLDX": {
 "beta": 0.982,
@@ -4662,6 +4670,10 @@
 "beta": 1.683,
 "sector": "Industrials"
 },
+"GYRE": {
+"beta": 4.923,
+"sector": "Healthcare"
+},
 "H": {
 "beta": 1.33,
 "sector": "Consumer Cyclical"
@@ -4685,6 +4697,10 @@
 "HALO": {
 "beta": 0.884,
 "sector": "Healthcare"
+},
+"HAPN": {
+"beta": 1.974,
+"sector": "Financial Services"
 },
 "HAS": {
 "beta": 0.517,
@@ -8204,6 +8220,10 @@
 },
 "PRA": {
 "beta": 0.045,
+"sector": "Financial Services"
+},
+"PRAA": {
+"beta": 1.148,
 "sector": "Financial Services"
 },
 "PRAX": {
