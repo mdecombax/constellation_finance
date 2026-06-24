@@ -1274,6 +1274,10 @@
 "beta": 1.325,
 "sector": "Consumer Cyclical"
 },
+"BCAL": {
+"beta": 0.305,
+"sector": "Financial Services"
+},
 "BCAT": {
 "beta": null,
 "sector": "Financial Services"
@@ -2066,6 +2070,9 @@
 "beta": 0.194,
 "sector": "Consumer Defensive"
 },
+"CCXI": {
+"sector": "Financial Services"
+},
 "CD": {
 "beta": 8.195,
 "sector": "Financial Services"
@@ -2721,6 +2728,10 @@
 "CSR": {
 "beta": 0.916,
 "sector": "Real Estate"
+},
+"CSTL": {
+"beta": 1.023,
+"sector": "Healthcare"
 },
 "CSTM": {
 "beta": 1.537,
@@ -7772,6 +7783,10 @@
 "beta": 0.77,
 "sector": "Technology"
 },
+"PAR": {
+"beta": 1.341,
+"sector": "Technology"
+},
 "PARR": {
 "beta": 0.911,
 "sector": "Energy"
@@ -10087,6 +10102,9 @@
 "TMQ": {
 "beta": 1.65,
 "sector": "Basic Materials"
+},
+"TMS": {
+"sector": "Financial Services"
 },
 "TMUS": {
 "beta": 0.32,
