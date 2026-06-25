@@ -319,6 +319,9 @@
 "beta": 1.036,
 "sector": "Financial Services"
 },
+"AGMB": {
+"sector": "Healthcare"
+},
 "AGNC": {
 "beta": 1.335,
 "sector": "Real Estate"
@@ -3189,6 +3192,9 @@
 "beta": 0.406,
 "sector": "Technology"
 },
+"DPC": {
+"sector": "Industrials"
+},
 "DPZ": {
 "beta": 1.02,
 "sector": "Consumer Cyclical"
@@ -4809,6 +4815,10 @@
 "beta": 1.147,
 "sector": "Real Estate"
 },
+"HIFS": {
+"beta": 0.841,
+"sector": "Financial Services"
+},
 "HIG": {
 "beta": 0.504,
 "sector": "Financial Services"
@@ -5816,6 +5826,10 @@
 "KRO": {
 "beta": 0.977,
 "sector": "Basic Materials"
+},
+"KRUS": {
+"beta": 1.337,
+"sector": "Consumer Cyclical"
 },
 "KRYS": {
 "beta": 0.495,
@@ -7322,6 +7336,10 @@
 },
 "NVCR": {
 "beta": 0.897,
+"sector": "Healthcare"
+},
+"NVCT": {
+"beta": -0.072,
 "sector": "Healthcare"
 },
 "NVDA": {
