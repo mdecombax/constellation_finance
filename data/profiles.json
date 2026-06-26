@@ -2069,6 +2069,10 @@
 "beta": 1.368,
 "sector": "Real Estate"
 },
+"CCSI": {
+"beta": 1.925,
+"sector": "Technology"
+},
 "CCU": {
 "beta": 0.194,
 "sector": "Consumer Defensive"
@@ -3128,6 +3132,10 @@
 "beta": 1.509,
 "sector": "Healthcare"
 },
+"DNA": {
+"beta": 1.8,
+"sector": "Healthcare"
+},
 "DNLI": {
 "beta": 0.995,
 "sector": "Healthcare"
@@ -3330,6 +3338,10 @@
 "ECG": {
 "beta": null,
 "sector": "Industrials"
+},
+"ECHO": {
+"beta": 0.963,
+"sector": "Communication Services"
 },
 "ECL": {
 "beta": 0.929,
@@ -5445,6 +5457,10 @@
 "beta": 1.333,
 "sector": "Healthcare"
 },
+"IRWD": {
+"beta": 0.241,
+"sector": "Healthcare"
+},
 "ISOU": {
 "beta": 0.846,
 "sector": "Energy"
@@ -6481,6 +6497,10 @@
 "MEGI": {
 "beta": null,
 "sector": "Financial Services"
+},
+"MEI": {
+"beta": 1.586,
+"sector": "Technology"
 },
 "MELI": {
 "beta": 1.406,
@@ -7625,6 +7645,10 @@
 "beta": 2.087,
 "sector": "Consumer Cyclical"
 },
+"ONT": {
+"beta": 1.714,
+"sector": "Industrials"
+},
 "ONTO": {
 "beta": 1.696,
 "sector": "Technology"
@@ -7987,6 +8011,10 @@
 "PFGC": {
 "beta": 0.921,
 "sector": "Consumer Defensive"
+},
+"PFIS": {
+"beta": 0.762,
+"sector": "Financial Services"
 },
 "PFLT": {
 "beta": 0.777,
@@ -9200,6 +9228,9 @@
 "beta": 0.658,
 "sector": "Basic Materials"
 },
+"SGP": {
+"sector": "Healthcare"
+},
 "SGRY": {
 "beta": 1.988,
 "sector": "Healthcare"
@@ -9271,6 +9302,9 @@
 "SILA": {
 "beta": 0.332,
 "sector": "Real Estate"
+},
+"SIND": {
+"sector": "Basic Materials"
 },
 "SION": {
 "beta": null,
@@ -9884,6 +9918,10 @@
 "TCGL": {
 "beta": null,
 "sector": "Technology"
+},
+"TCMD": {
+"beta": 0.829,
+"sector": "Healthcare"
 },
 "TD": {
 "beta": 0.87,
@@ -10627,6 +10665,10 @@
 "UTL": {
 "beta": 0.328,
 "sector": "Utilities"
+},
+"UTZ": {
+"beta": 0.841,
+"sector": "Consumer Defensive"
 },
 "UUUU": {
 "beta": 1.609,
