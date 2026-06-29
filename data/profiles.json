@@ -370,6 +370,10 @@
 "beta": 0.541,
 "sector": "Financial Services"
 },
+"AIIO": {
+"beta": 2.152,
+"sector": "Consumer Cyclical"
+},
 "AIIR": {
 "beta": null,
 "sector": "Consumer Defensive"
@@ -1628,6 +1632,9 @@
 "BORR": {
 "beta": 1.038,
 "sector": "Energy"
+},
+"BOT": {
+"sector": "Financial Services"
 },
 "BOW": {
 "beta": -0.158,
@@ -3427,6 +3434,9 @@
 "beta": 0.5,
 "sector": "Financial Services"
 },
+"EIKN": {
+"sector": "Healthcare"
+},
 "EIX": {
 "beta": 0.675,
 "sector": "Utilities"
@@ -3908,6 +3918,10 @@
 "FCX": {
 "beta": 1.316,
 "sector": "Basic Materials"
+},
+"FDMT": {
+"beta": 2.756,
+"sector": "Healthcare"
 },
 "FDP": {
 "beta": 0.292,
@@ -5250,6 +5264,10 @@
 "beta": 1.369,
 "sector": "Financial Services"
 },
+"IHRT": {
+"beta": 2.211,
+"sector": "Communication Services"
+},
 "IHS": {
 "beta": 0.744,
 "sector": "Real Estate"
@@ -6385,6 +6403,10 @@
 "MATX": {
 "beta": 1.301,
 "sector": "Industrials"
+},
+"MAX": {
+"beta": 1.161,
+"sector": "Communication Services"
 },
 "MAZE": {
 "beta": null,
@@ -7713,6 +7735,10 @@
 "beta": 0.584,
 "sector": "Consumer Cyclical"
 },
+"ORN": {
+"beta": 1.38,
+"sector": "Industrials"
+},
 "ORRF": {
 "beta": 0.696,
 "sector": "Financial Services"
@@ -8342,6 +8368,10 @@
 "PRMB": {
 "beta": 0.645,
 "sector": "Consumer Defensive"
+},
+"PRME": {
+"beta": 2.314,
+"sector": "Healthcare"
 },
 "PRSU": {
 "beta": 1.406,
