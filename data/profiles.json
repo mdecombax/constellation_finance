@@ -670,6 +670,10 @@
 "beta": 0.965,
 "sector": "Consumer Cyclical"
 },
+"ANGX": {
+"beta": 0.062,
+"sector": "Communication Services"
+},
 "ANIP": {
 "beta": 0.455,
 "sector": "Healthcare"
@@ -3135,6 +3139,10 @@
 "beta": null,
 "sector": "Financial Services"
 },
+"DMC": {
+"beta": 0.218,
+"sector": "Consumer Defensive"
+},
 "DMRA": {
 "beta": 1.509,
 "sector": "Healthcare"
@@ -4943,6 +4951,9 @@
 },
 "HON": {
 "beta": 0.811,
+"sector": "Industrials"
+},
+"HONA": {
 "sector": "Industrials"
 },
 "HONAV": {
@@ -10256,6 +10267,9 @@
 "beta": 0.453,
 "sector": "Consumer Defensive"
 },
+"TRAX": {
+"sector": "Healthcare"
+},
 "TREX": {
 "beta": 1.514,
 "sector": "Industrials"
@@ -10731,6 +10745,10 @@
 "VAL": {
 "beta": 0.97,
 "sector": "Energy"
+},
+"VBNK": {
+"beta": 1.138,
+"sector": "Financial Services"
 },
 "VC": {
 "beta": 1.268,
