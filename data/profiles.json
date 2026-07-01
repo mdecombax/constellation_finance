@@ -1960,6 +1960,10 @@
 "beta": 0.64,
 "sector": "Financial Services"
 },
+"CASS": {
+"beta": 0.459,
+"sector": "Industrials"
+},
 "CASY": {
 "beta": 0.65,
 "sector": "Consumer Cyclical"
@@ -4478,6 +4482,10 @@
 "beta": 0.5,
 "sector": "Financial Services"
 },
+"GLAS": {
+"beta": 0.54,
+"sector": "Healthcare"
+},
 "GLBE": {
 "beta": 1.183,
 "sector": "Consumer Cyclical"
@@ -5871,6 +5879,10 @@
 "KRO": {
 "beta": 0.977,
 "sector": "Basic Materials"
+},
+"KRT": {
+"beta": 0.861,
+"sector": "Consumer Cyclical"
 },
 "KRUS": {
 "beta": 1.337,
@@ -8752,6 +8764,10 @@
 "RGLD": {
 "beta": 0.436,
 "sector": "Basic Materials"
+},
+"RGNX": {
+"beta": 1.027,
+"sector": "Healthcare"
 },
 "RGTI": {
 "beta": 1.801,
