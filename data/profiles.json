@@ -1812,6 +1812,10 @@
 "beta": 0.311,
 "sector": "Basic Materials"
 },
+"BVS": {
+"beta": 0.669,
+"sector": "Healthcare"
+},
 "BW": {
 "beta": 1.085,
 "sector": "Industrials"
@@ -2546,6 +2550,10 @@
 "COP": {
 "beta": 0.149,
 "sector": "Energy"
+},
+"COPR": {
+"beta": 1.827,
+"sector": ""
 },
 "COR": {
 "beta": 0.645,
@@ -8137,6 +8145,10 @@
 "beta": 1.242,
 "sector": "Consumer Cyclical"
 },
+"PHR": {
+"beta": 0.884,
+"sector": "Healthcare"
+},
 "PHVS": {
 "beta": -2.335,
 "sector": "Healthcare"
@@ -9792,6 +9804,10 @@
 "beta": 1.46,
 "sector": "Financial Services"
 },
+"STTK": {
+"beta": 1.086,
+"sector": "Healthcare"
+},
 "STUB": {
 "beta": null,
 "sector": "Communication Services"
@@ -10031,6 +10047,10 @@
 "TECK": {
 "beta": 1.568,
 "sector": "Basic Materials"
+},
+"TECX": {
+"beta": 0.137,
+"sector": "Healthcare"
 },
 "TEL": {
 "beta": 1.177,
