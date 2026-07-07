@@ -1712,6 +1712,9 @@
 "beta": 0.289,
 "sector": "Financial Services"
 },
+"BSP": {
+"sector": "Technology"
+},
 "BST": {
 "beta": null,
 "sector": "Financial Services"
@@ -4261,6 +4264,10 @@
 "FTDR": {
 "beta": 1.556,
 "sector": "Consumer Cyclical"
+},
+"FTH": {
+"beta": -0.261,
+"sector": "Healthcare"
 },
 "FTI": {
 "beta": 0.738,
@@ -7162,6 +7169,10 @@
 "NG": {
 "beta": 2.102,
 "sector": "Basic Materials"
+},
+"NGNE": {
+"beta": 1.959,
+"sector": "Healthcare"
 },
 "NGVC": {
 "beta": 1.308,
