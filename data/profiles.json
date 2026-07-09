@@ -251,6 +251,10 @@
 "beta": 0.568,
 "sector": "Basic Materials"
 },
+"AENT": {
+"beta": 0.427,
+"sector": "Communication Services"
+},
 "AEO": {
 "beta": 1.36,
 "sector": "Consumer Cyclical"
@@ -3910,6 +3914,10 @@
 "beta": 1.12,
 "sector": "Real Estate"
 },
+"FBRX": {
+"beta": 2.844,
+"sector": "Healthcare"
+},
 "FBYD": {
 "beta": -0.939,
 "sector": "Industrials"
@@ -6740,6 +6748,10 @@
 },
 "MNKD": {
 "beta": 1.038,
+"sector": "Healthcare"
+},
+"MNPR": {
+"beta": 1.475,
 "sector": "Healthcare"
 },
 "MNST": {
