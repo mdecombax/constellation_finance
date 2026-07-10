@@ -6614,6 +6614,9 @@
 "beta": 0.687,
 "sector": "Financial Services"
 },
+"MFP": {
+"sector": "Industrials"
+},
 "MGA": {
 "beta": 1.847,
 "sector": "Consumer Cyclical"
