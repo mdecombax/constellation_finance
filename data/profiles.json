@@ -4445,6 +4445,9 @@
 "beta": 1.713,
 "sector": "Technology"
 },
+"GFUZ": {
+"sector": "Industrials"
+},
 "GGB": {
 "beta": 0.935,
 "sector": "Basic Materials"
@@ -5537,6 +5540,9 @@
 "beta": 0.909,
 "sector": "Technology"
 },
+"ITG": {
+"sector": "Industrials"
+},
 "ITGR": {
 "beta": 0.662,
 "sector": "Healthcare"
@@ -6142,6 +6148,9 @@
 "beta": 0.748,
 "sector": "Communication Services"
 },
+"LIME": {
+"sector": "Industrials"
+},
 "LIN": {
 "beta": 0.74,
 "sector": "Basic Materials"
@@ -6465,6 +6474,9 @@
 "MBC": {
 "beta": 1.543,
 "sector": "Consumer Cyclical"
+},
+"MBGL": {
+"sector": "Technology"
 },
 "MBIN": {
 "beta": 1.164,
