@@ -3771,6 +3771,10 @@
 "beta": 2.827,
 "sector": "Consumer Cyclical"
 },
+"EVH": {
+"beta": 0.765,
+"sector": "Healthcare"
+},
 "EVLV": {
 "beta": 1.818,
 "sector": "Industrials"
