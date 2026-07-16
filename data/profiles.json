@@ -1967,6 +1967,10 @@
 "beta": 1.377,
 "sector": "Industrials"
 },
+"CARS": {
+"beta": 1.589,
+"sector": "Communication Services"
+},
 "CART": {
 "beta": 0.965,
 "sector": "Consumer Cyclical"
@@ -4339,6 +4343,10 @@
 },
 "GABC": {
 "beta": 0.59,
+"sector": "Financial Services"
+},
+"GAIN": {
+"beta": 0.76,
 "sector": "Financial Services"
 },
 "GAM": {
@@ -8618,6 +8626,9 @@
 },
 "QLYS": {
 "beta": 0.579,
+"sector": "Technology"
+},
+"QMLS": {
 "sector": "Technology"
 },
 "QMMM": {
