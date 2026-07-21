@@ -1948,6 +1948,9 @@
 "beta": 1.634,
 "sector": "Financial Services"
 },
+"BXBL": {
+"sector": "Consumer Cyclical"
+},
 "BXDC": {
 "beta": null,
 "sector": "Real Estate"
@@ -8097,6 +8100,10 @@
 "OGE": {
 "beta": 0.539,
 "sector": "Utilities"
+},
+"OGG": {
+"beta": 1.876,
+"sector": "Basic Materials"
 },
 "OGN": {
 "beta": 1.546,
