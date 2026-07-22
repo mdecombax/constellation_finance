@@ -4453,6 +4453,9 @@
 "beta": null,
 "sector": "Real Estate"
 },
+"FRNM": {
+"sector": "Healthcare"
+},
 "FRO": {
 "beta": 0.049,
 "sector": "Energy"
