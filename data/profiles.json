@@ -1415,6 +1415,10 @@
 "beta": 0.857,
 "sector": "Financial Services"
 },
+"BDN": {
+"beta": 1.249,
+"sector": "Real Estate"
+},
 "BDX": {
 "beta": 0.285,
 "sector": "Healthcare"
@@ -2391,6 +2395,10 @@
 "CHTR": {
 "beta": 0.757,
 "sector": "Communication Services"
+},
+"CHW": {
+"beta": 1.176,
+"sector": "Financial Services"
 },
 "CHWY": {
 "beta": 1.495,
@@ -3731,6 +3739,10 @@
 "beta": 0.816,
 "sector": "Industrials"
 },
+"EMD": {
+"beta": 0.822,
+"sector": "Financial Services"
+},
 "EME": {
 "beta": 1.169,
 "sector": "Industrials"
@@ -4237,6 +4249,10 @@
 "FERG": {
 "beta": 1.199,
 "sector": "Industrials"
+},
+"FET": {
+"beta": 0.545,
+"sector": "Energy"
 },
 "FFBC": {
 "beta": 0.945,
@@ -5335,6 +5351,10 @@
 },
 "HQH": {
 "beta": 0.769,
+"sector": "Financial Services"
+},
+"HQL": {
+"beta": 0.707,
 "sector": "Financial Services"
 },
 "HQY": {
@@ -7050,6 +7070,10 @@
 "beta": null,
 "sector": "Consumer Defensive"
 },
+"MHD": {
+"beta": 0.719,
+"sector": "Financial Services"
+},
 "MHK": {
 "beta": 1.208,
 "sector": "Consumer Cyclical"
@@ -7908,6 +7932,10 @@
 },
 "NVDA": {
 "beta": 2.244,
+"sector": "Technology"
+},
+"NVEC": {
+"beta": 1.333,
 "sector": "Technology"
 },
 "NVG": {
@@ -11548,6 +11576,10 @@
 "VITL": {
 "beta": 1.066,
 "sector": "Consumer Defensive"
+},
+"VKQ": {
+"beta": 0.649,
+"sector": "Financial Services"
 },
 "VKTX": {
 "beta": 0.71,
