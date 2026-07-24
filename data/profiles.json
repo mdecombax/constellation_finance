@@ -10934,6 +10934,10 @@
 "beta": 1.385,
 "sector": "Consumer Cyclical"
 },
+"TOP": {
+"beta": -1.104,
+"sector": "Financial Services"
+},
 "TOST": {
 "beta": 1.817,
 "sector": "Technology"
