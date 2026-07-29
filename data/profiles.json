@@ -2879,6 +2879,10 @@
 "beta": 1.585,
 "sector": "Technology"
 },
+"CRTO": {
+"beta": 0.298,
+"sector": "Communication Services"
+},
 "CRUS": {
 "beta": 1.154,
 "sector": "Technology"
@@ -5675,6 +5679,9 @@
 "beta": 0.364,
 "sector": "Communication Services"
 },
+"IMC": {
+"sector": "Basic Materials"
+},
 "IMKTA": {
 "beta": 0.623,
 "sector": "Consumer Defensive"
@@ -6715,6 +6722,10 @@
 "beta": 0.842,
 "sector": "Consumer Cyclical"
 },
+"LVWR": {
+"beta": 1.707,
+"sector": "Consumer Cyclical"
+},
 "LW": {
 "beta": 0.462,
 "sector": "Consumer Defensive"
@@ -7397,6 +7408,10 @@
 "MTUS": {
 "beta": 1.356,
 "sector": "Basic Materials"
+},
+"MTW": {
+"beta": 1.719,
+"sector": "Industrials"
 },
 "MTX": {
 "beta": 1.121,
@@ -8120,6 +8135,10 @@
 "OFG": {
 "beta": 0.733,
 "sector": "Financial Services"
+},
+"OFIX": {
+"beta": 0.712,
+"sector": "Healthcare"
 },
 "OFRM": {
 "sector": "Consumer Defensive"
@@ -9149,6 +9168,10 @@
 "QGEN": {
 "beta": 0.642,
 "sector": "Healthcare"
+},
+"QH": {
+"beta": 1.073,
+"sector": "Technology"
 },
 "QLYS": {
 "beta": 0.579,
