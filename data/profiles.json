@@ -9323,6 +9323,9 @@
 "beta": 2.843,
 "sector": "Consumer Cyclical"
 },
+"REF": {
+"sector": "Consumer Cyclical"
+},
 "REG": {
 "beta": 0.845,
 "sector": "Real Estate"
