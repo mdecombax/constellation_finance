@@ -2528,6 +2528,10 @@
 "beta": 1.489,
 "sector": "Industrials"
 },
+"CMCO": {
+"beta": 1.388,
+"sector": "Industrials"
+},
 "CMCSA": {
 "beta": 0.689,
 "sector": "Communication Services"
@@ -9215,6 +9219,10 @@
 "beta": 1.385,
 "sector": "Technology"
 },
+"QUAD": {
+"beta": 1.094,
+"sector": "Industrials"
+},
 "QUBT": {
 "beta": 3.698,
 "sector": "Technology"
@@ -11411,6 +11419,9 @@
 "beta": 1.831,
 "sector": "Industrials"
 },
+"UROY": {
+"sector": "Energy"
+},
 "USA": {
 "beta": 0.984,
 "sector": "Financial Services"
@@ -11992,6 +12003,10 @@
 "WMT": {
 "beta": 0.652,
 "sector": "Consumer Defensive"
+},
+"WNC": {
+"beta": 1.415,
+"sector": "Industrials"
 },
 "WOLF": {
 "beta": null,
