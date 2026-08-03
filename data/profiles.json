@@ -797,6 +797,9 @@
 "beta": 0.876,
 "sector": "Real Estate"
 },
+"APMD": {
+"sector": "Healthcare"
+},
 "APO": {
 "beta": 1.519,
 "sector": "Financial Services"
@@ -3092,6 +3095,10 @@
 "CWEN": {
 "beta": 0.871,
 "sector": "Utilities"
+},
+"CWH": {
+"beta": 2.092,
+"sector": "Consumer Cyclical"
 },
 "CWK": {
 "beta": 1.504,
@@ -6026,6 +6033,9 @@
 "JLL": {
 "beta": 1.344,
 "sector": "Real Estate"
+},
+"JMKE": {
+"sector": "Consumer Cyclical"
 },
 "JNJ": {
 "beta": 0.263,
