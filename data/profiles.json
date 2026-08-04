@@ -231,6 +231,10 @@
 "beta": 1.466,
 "sector": "Technology"
 },
+"ADUR": {
+"beta": 1.293,
+"sector": "Industrials"
+},
 "ADUS": {
 "beta": 0.922,
 "sector": "Healthcare"
@@ -3226,6 +3230,9 @@
 "beta": 1.056,
 "sector": "Basic Materials"
 },
+"DDD": {
+"sector": "Technology"
+},
 "DDI": {
 "beta": 1.018,
 "sector": "Communication Services"
@@ -5193,6 +5200,10 @@
 "HELE": {
 "beta": 1.33,
 "sector": "Consumer Defensive"
+},
+"HELP": {
+"beta": 0.565,
+"sector": "Healthcare"
 },
 "HESM": {
 "beta": 0.522,
