@@ -916,6 +916,10 @@
 "beta": 1.757,
 "sector": "Technology"
 },
+"ARTV": {
+"beta": 2.177,
+"sector": "Healthcare"
+},
 "ARVN": {
 "beta": 1.749,
 "sector": "Healthcare"
@@ -1961,6 +1965,10 @@
 },
 "BXBL": {
 "sector": "Consumer Cyclical"
+},
+"BXC": {
+"beta": 1.396,
+"sector": "Industrials"
 },
 "BXDC": {
 "beta": null,
@@ -5826,6 +5834,9 @@
 "INVX": {
 "beta": null,
 "sector": "Energy"
+},
+"IOND": {
+"sector": "Financial Services"
 },
 "IONQ": {
 "beta": 3.052,
