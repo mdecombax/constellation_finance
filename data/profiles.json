@@ -4634,6 +4634,10 @@
 "beta": 0.669,
 "sector": "Communication Services"
 },
+"FWRD": {
+"beta": 1.362,
+"sector": "Industrials"
+},
 "FWRG": {
 "beta": 1.116,
 "sector": "Consumer Cyclical"
@@ -6744,6 +6748,9 @@
 "beta": 0.587,
 "sector": "Real Estate"
 },
+"LTGO": {
+"sector": "Healthcare"
+},
 "LTH": {
 "beta": 1.495,
 "sector": "Consumer Cyclical"
@@ -7202,6 +7209,10 @@
 "MLM": {
 "beta": 1.136,
 "sector": "Basic Materials"
+},
+"MLR": {
+"beta": 1.126,
+"sector": "Consumer Cyclical"
 },
 "MLTX": {
 "beta": 1.008,
@@ -10507,6 +10518,10 @@
 "STLD": {
 "beta": 1.493,
 "sector": "Basic Materials"
+},
+"STLN": {
+"beta": 0.422,
+"sector": "Healthcare"
 },
 "STM": {
 "beta": 1.513,
