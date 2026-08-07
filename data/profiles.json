@@ -195,6 +195,9 @@
 "beta": 1.194,
 "sector": "Technology"
 },
+"ADIG": {
+"sector": "Technology"
+},
 "ADM": {
 "beta": 0.578,
 "sector": "Consumer Defensive"
@@ -1000,6 +1003,10 @@
 "beta": 3.273,
 "sector": "Basic Materials"
 },
+"ASPN": {
+"beta": 2.968,
+"sector": "Basic Materials"
+},
 "ASR": {
 "beta": 0.221,
 "sector": "Industrials"
@@ -1796,6 +1803,9 @@
 "BRUN": {
 "beta": null,
 "sector": "Technology"
+},
+"BRVE": {
+"sector": "Healthcare"
 },
 "BRX": {
 "beta": 0.981,
@@ -5329,6 +5339,10 @@
 "beta": 0.155,
 "sector": "Energy"
 },
+"HNST": {
+"beta": 2.171,
+"sector": "Consumer Defensive"
+},
 "HOG": {
 "beta": 1.285,
 "sector": "Consumer Cyclical"
@@ -6884,6 +6898,10 @@
 "MAT": {
 "beta": 0.739,
 "sector": "Consumer Cyclical"
+},
+"MATV": {
+"beta": 0.87,
+"sector": "Basic Materials"
 },
 "MATW": {
 "beta": 1.117,
@@ -9319,6 +9337,10 @@
 "beta": 1.216,
 "sector": "Industrials"
 },
+"RCBC": {
+"beta": 0.161,
+"sector": "Financial Services"
+},
 "RCI": {
 "beta": 0.782,
 "sector": "Communication Services"
@@ -10741,6 +10763,9 @@
 "TDS": {
 "beta": 0.34,
 "sector": "Communication Services"
+},
+"TDTH": {
+"sector": "Technology"
 },
 "TDUP": {
 "beta": 2.063,
