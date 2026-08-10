@@ -1961,6 +1961,10 @@
 "beta": 0.071,
 "sector": "Energy"
 },
+"BWMN": {
+"beta": 1.366,
+"sector": "Industrials"
+},
 "BWMX": {
 "beta": 1.066,
 "sector": "Consumer Cyclical"
@@ -11760,6 +11764,10 @@
 },
 "VRDN": {
 "beta": 0.817,
+"sector": "Healthcare"
+},
+"VREX": {
+"beta": 0.877,
 "sector": "Healthcare"
 },
 "VRNS": {
