@@ -4501,6 +4501,9 @@
 "beta": 1.085,
 "sector": "Real Estate"
 },
+"FRBT": {
+"sector": "Financial Services"
+},
 "FRHC": {
 "beta": 0.722,
 "sector": "Financial Services"
@@ -8157,6 +8160,10 @@
 "beta": 0.422,
 "sector": "Financial Services"
 },
+"OBX": {
+"beta": 2.637,
+"sector": "Healthcare"
+},
 "OC": {
 "beta": 1.35,
 "sector": "Industrials"
@@ -9244,6 +9251,9 @@
 },
 "QLYS": {
 "beta": 0.579,
+"sector": "Technology"
+},
+"QMCO": {
 "sector": "Technology"
 },
 "QMLS": {
@@ -10554,6 +10564,10 @@
 "STRL": {
 "beta": 1.639,
 "sector": "Industrials"
+},
+"STRW": {
+"beta": 0.268,
+"sector": "Real Estate"
 },
 "STT": {
 "beta": 1.46,
