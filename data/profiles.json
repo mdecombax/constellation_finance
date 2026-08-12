@@ -11281,6 +11281,10 @@
 "beta": 0.667,
 "sector": "Financial Services"
 },
+"TWFG": {
+"beta": 0.151,
+"sector": "Financial Services"
+},
 "TWI": {
 "beta": 1.45,
 "sector": "Industrials"
