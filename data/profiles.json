@@ -7617,6 +7617,9 @@
 "beta": 1.022,
 "sector": "Energy"
 },
+"NBRG": {
+"sector": "Financial Services"
+},
 "NBTB": {
 "beta": 0.479,
 "sector": "Financial Services"
