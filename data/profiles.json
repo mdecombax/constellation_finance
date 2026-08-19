@@ -6825,6 +6825,9 @@
 "beta": 1.846,
 "sector": "Technology"
 },
+"LYNX": {
+"sector": "Industrials"
+},
 "LYTS": {
 "beta": 0.539,
 "sector": "Technology"
@@ -7890,6 +7893,10 @@
 "NRDS": {
 "beta": 1.229,
 "sector": "Communication Services"
+},
+"NRDY": {
+"beta": 1.741,
+"sector": "Technology"
 },
 "NRG": {
 "beta": 1.315,
