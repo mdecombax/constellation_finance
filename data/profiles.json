@@ -3810,6 +3810,9 @@
 "beta": 0.792,
 "sector": "Energy"
 },
+"ENHA": {
+"sector": "Consumer Defensive"
+},
 "ENLT": {
 "beta": 0.865,
 "sector": "Utilities"
@@ -4679,6 +4682,10 @@
 "GATX": {
 "beta": 1.246,
 "sector": "Industrials"
+},
+"GAU": {
+"beta": 1.608,
+"sector": "Basic Materials"
 },
 "GBCI": {
 "beta": 0.753,
@@ -7503,6 +7510,10 @@
 "beta": 1.919,
 "sector": "Technology"
 },
+"MUA": {
+"beta": 0.618,
+"sector": "Financial Services"
+},
 "MUC": {
 "beta": 0.655,
 "sector": "Financial Services"
@@ -8156,6 +8167,10 @@
 "O": {
 "beta": 0.757,
 "sector": "Real Estate"
+},
+"OABI": {
+"beta": 1.217,
+"sector": "Healthcare"
 },
 "OBDC": {
 "beta": 0.687,
