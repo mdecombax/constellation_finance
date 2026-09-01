@@ -1082,6 +1082,9 @@
 "beta": 1.274,
 "sector": "Industrials"
 },
+"ATTO": {
+"sector": "Healthcare"
+},
 "AU": {
 "beta": 0.618,
 "sector": "Basic Materials"
@@ -9165,6 +9168,9 @@
 "PSO": {
 "beta": -0.049,
 "sector": "Communication Services"
+},
+"PSQL": {
+"sector": "Technology"
 },
 "PSTL": {
 "beta": 0.784,
