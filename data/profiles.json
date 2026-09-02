@@ -10062,6 +10062,9 @@
 "beta": 1.249,
 "sector": "Consumer Cyclical"
 },
+"SGLD": {
+"sector": "Basic Materials"
+},
 "SGML": {
 "beta": 0.658,
 "sector": "Basic Materials"
