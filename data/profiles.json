@@ -6331,6 +6331,9 @@
 "beta": 0.721,
 "sector": "Energy"
 },
+"KPLT": {
+"sector": "Technology"
+},
 "KR": {
 "beta": 0.457,
 "sector": "Consumer Defensive"
