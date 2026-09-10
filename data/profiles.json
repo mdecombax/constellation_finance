@@ -1109,6 +1109,10 @@
 "beta": 0.371,
 "sector": "Healthcare"
 },
+"AUXX": {
+"beta": 2.445,
+"sector": "Basic Materials"
+},
 "AVA": {
 "beta": 0.229,
 "sector": "Utilities"
@@ -5392,6 +5396,9 @@
 "HOPE": {
 "beta": 0.827,
 "sector": "Financial Services"
+},
+"HOS": {
+"sector": "Industrials"
 },
 "HOV": {
 "beta": 1.869,
@@ -12353,6 +12360,9 @@
 "XRN": {
 "beta": 1.124,
 "sector": "Real Estate"
+},
+"XTND": {
+"sector": "Technology"
 },
 "XXI": {
 "beta": null,
