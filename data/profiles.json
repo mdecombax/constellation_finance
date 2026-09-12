@@ -4992,6 +4992,10 @@
 "beta": 1.768,
 "sector": "Consumer Cyclical"
 },
+"GOSS": {
+"beta": 2.004,
+"sector": "Healthcare"
+},
 "GPC": {
 "beta": 0.709,
 "sector": "Consumer Cyclical"
@@ -11665,6 +11669,9 @@
 },
 "VCV": {
 "beta": 0.748,
+"sector": "Financial Services"
+},
+"VCX": {
 "sector": "Financial Services"
 },
 "VCYT": {
