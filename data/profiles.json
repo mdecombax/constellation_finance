@@ -7745,6 +7745,10 @@
 "beta": 0.698,
 "sector": "Financial Services"
 },
+"NFE": {
+"beta": 1.32,
+"sector": "Energy"
+},
 "NFG": {
 "beta": 0.421,
 "sector": "Energy"
@@ -10906,6 +10910,10 @@
 "TER": {
 "beta": 1.793,
 "sector": "Technology"
+},
+"TEVA": {
+"beta": 0.873,
+"sector": "Healthcare"
 },
 "TEX": {
 "beta": 1.571,
