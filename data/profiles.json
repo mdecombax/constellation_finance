@@ -1931,6 +1931,9 @@
 "beta": 0.705,
 "sector": "Financial Services"
 },
+"BUUU": {
+"sector": "Industrials"
+},
 "BV": {
 "beta": 1.201,
 "sector": "Industrials"
