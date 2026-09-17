@@ -1667,6 +1667,9 @@
 "beta": null,
 "sector": "Technology"
 },
+"BLSM": {
+"sector": "Healthcare"
+},
 "BLW": {
 "beta": 0.583,
 "sector": "Financial Services"
@@ -6375,6 +6378,9 @@
 "KRO": {
 "beta": 0.977,
 "sector": "Basic Materials"
+},
+"KRSA": {
+"sector": "Healthcare"
 },
 "KRSP": {
 "sector": "Financial Services"
