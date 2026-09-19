@@ -4035,6 +4035,9 @@
 "beta": 0.529,
 "sector": "Utilities"
 },
+"ETRA": {
+"sector": "Healthcare"
+},
 "ETSY": {
 "beta": 1.898,
 "sector": "Consumer Cyclical"
@@ -7484,6 +7487,10 @@
 "beta": 0.591,
 "sector": "Financial Services"
 },
+"MTC": {
+"beta": -0.162,
+"sector": "Financial Services"
+},
 "MTCH": {
 "beta": 1.358,
 "sector": "Communication Services"
@@ -8304,6 +8311,9 @@
 "OI": {
 "beta": 0.65,
 "sector": "Consumer Cyclical"
+},
+"OIG": {
+"sector": "Financial Services"
 },
 "OII": {
 "beta": 1.173,
