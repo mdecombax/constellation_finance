@@ -9377,6 +9377,9 @@
 "beta": 0.869,
 "sector": "Healthcare"
 },
+"QVCG": {
+"sector": "Consumer Cyclical"
+},
 "QXO": {
 "beta": 2.37,
 "sector": "Industrials"
