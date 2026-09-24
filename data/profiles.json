@@ -962,6 +962,9 @@
 "beta": 0.792,
 "sector": "Financial Services"
 },
+"ASBH": {
+"sector": "Financial Services"
+},
 "ASC": {
 "beta": 0.02,
 "sector": "Industrials"
@@ -8132,6 +8135,9 @@
 "NWBI": {
 "beta": 0.675,
 "sector": "Financial Services"
+},
+"NWCL": {
+"sector": "Industrials"
 },
 "NWE": {
 "beta": 0.376,
