@@ -221,6 +221,9 @@
 "beta": 2.163,
 "sector": "Healthcare"
 },
+"ADRX": {
+"sector": "Healthcare"
+},
 "ADSE": {
 "beta": 0.364,
 "sector": "Industrials"
