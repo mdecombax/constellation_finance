@@ -102,6 +102,9 @@
 "beta": 0.86,
 "sector": "Healthcare"
 },
+"ACCV": {
+"sector": "Industrials"
+},
 "ACDC": {
 "beta": 1.518,
 "sector": "Energy"
@@ -8575,6 +8578,10 @@
 "beta": 0.306,
 "sector": "Industrials"
 },
+"PACB": {
+"beta": 2.31,
+"sector": "Healthcare"
+},
 "PACK": {
 "beta": 3.113,
 "sector": "Consumer Cyclical"
@@ -9863,6 +9870,9 @@
 "RYZ": {
 "beta": 1.664,
 "sector": "Industrials"
+},
+"RZAI": {
+"sector": "Technology"
 },
 "RZLV": {
 "beta": -0.204,
