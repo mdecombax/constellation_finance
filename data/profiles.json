@@ -11986,6 +11986,10 @@
 "beta": 0.128,
 "sector": "Industrials"
 },
+"VYLR": {
+"beta": 0.577,
+"sector": "Financial Services"
+},
 "VYX": {
 "beta": 1.516,
 "sector": "Technology"
