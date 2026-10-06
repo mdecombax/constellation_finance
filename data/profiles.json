@@ -5145,6 +5145,10 @@
 "GUG": {
 "sector": "Financial Services"
 },
+"GUTS": {
+"beta": 2.415,
+"sector": "Healthcare"
+},
 "GVA": {
 "beta": 1.353,
 "sector": "Industrials"
@@ -9010,6 +9014,10 @@
 "PM": {
 "beta": 0.393,
 "sector": "Consumer Defensive"
+},
+"PML": {
+"beta": 0.712,
+"sector": "Financial Services"
 },
 "PMT": {
 "beta": 1.18,
