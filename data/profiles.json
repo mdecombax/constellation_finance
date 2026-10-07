@@ -7608,6 +7608,10 @@
 "beta": 0.624,
 "sector": "Financial Services"
 },
+"MYN": {
+"beta": 0.74,
+"sector": "Financial Services"
+},
 "MYRG": {
 "beta": 1.297,
 "sector": "Industrials"
