@@ -10262,6 +10262,10 @@
 "beta": 1.068,
 "sector": "Consumer Cyclical"
 },
+"SKYD": {
+"beta": 1.547,
+"sector": "Communication Services"
+},
 "SKYH": {
 "beta": 1.378,
 "sector": "Real Estate"
