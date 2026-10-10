@@ -338,6 +338,9 @@
 "beta": null,
 "sector": "Financial Services"
 },
+"AGCC": {
+"sector": "Consumer Defensive"
+},
 "AGCO": {
 "beta": 1.117,
 "sector": "Industrials"
