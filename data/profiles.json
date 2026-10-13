@@ -12129,6 +12129,9 @@
 "beta": 0.96,
 "sector": "Financial Services"
 },
+"WFF": {
+"sector": "Industrials"
+},
 "WFG": {
 "beta": 1.088,
 "sector": "Basic Materials"
