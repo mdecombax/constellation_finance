@@ -1698,6 +1698,10 @@
 "beta": 0.465,
 "sector": "Financial Services"
 },
+"BMBL": {
+"beta": 1.889,
+"sector": "Communication Services"
+},
 "BMEZ": {
 "beta": null,
 "sector": "Financial Services"
