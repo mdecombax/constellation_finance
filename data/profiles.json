@@ -5633,6 +5633,9 @@
 "beta": 2.212,
 "sector": "Basic Materials"
 },
+"IAM": {
+"sector": "Healthcare"
+},
 "IART": {
 "beta": 1.081,
 "sector": "Healthcare"
