@@ -3082,6 +3082,9 @@
 "beta": 0.593,
 "sector": "Basic Materials"
 },
+"CTY": {
+"sector": "Healthcare"
+},
 "CUBE": {
 "beta": 1.107,
 "sector": "Real Estate"
