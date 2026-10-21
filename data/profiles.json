@@ -1793,6 +1793,9 @@
 "beta": 0.648,
 "sector": "Financial Services"
 },
+"BPRE": {
+"sector": "Financial Services"
+},
 "BR": {
 "beta": 0.901,
 "sector": "Technology"
