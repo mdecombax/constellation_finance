@@ -6886,6 +6886,9 @@
 "beta": 0.355,
 "sector": "Basic Materials"
 },
+"LYCA": {
+"sector": "Healthcare"
+},
 "LYFT": {
 "beta": 1.846,
 "sector": "Technology"
