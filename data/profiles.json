@@ -10784,6 +10784,10 @@
 "beta": null,
 "sector": "Technology"
 },
+"SWRD": {
+"beta": 1.261,
+"sector": "Financial Services"
+},
 "SWX": {
 "beta": 0.616,
 "sector": "Utilities"
@@ -12088,6 +12092,10 @@
 "WCC": {
 "beta": 1.545,
 "sector": "Industrials"
+},
+"WCCB": {
+"beta": 0.484,
+"sector": "Financial Services"
 },
 "WCN": {
 "beta": 0.543,
