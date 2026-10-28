@@ -7487,6 +7487,9 @@
 "beta": 0.612,
 "sector": "Communication Services"
 },
+"MSGR": {
+"sector": ""
+},
 "MSGS": {
 "beta": 0.565,
 "sector": "Communication Services"
