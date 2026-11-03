@@ -4618,6 +4618,9 @@
 "beta": 1.324,
 "sector": "Industrials"
 },
+"FSSL": {
+"sector": "Financial Services"
+},
 "FSUN": {
 "beta": 0.226,
 "sector": "Financial Services"
@@ -11576,6 +11579,10 @@
 },
 "ULCC": {
 "beta": 2.414,
+"sector": "Industrials"
+},
+"ULH": {
+"beta": 0.677,
 "sector": "Industrials"
 },
 "ULS": {
