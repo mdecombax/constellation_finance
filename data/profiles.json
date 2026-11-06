@@ -2296,6 +2296,10 @@
 "beta": 1.242,
 "sector": "Basic Materials"
 },
+"CDLR": {
+"beta": 0.72,
+"sector": "Industrials"
+},
 "CDNA": {
 "beta": 2.49,
 "sector": "Healthcare"
