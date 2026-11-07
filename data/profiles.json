@@ -357,6 +357,9 @@
 "beta": 2.306,
 "sector": "Healthcare"
 },
+"AGLT": {
+"sector": "Technology"
+},
 "AGM": {
 "beta": 1.036,
 "sector": "Financial Services"
@@ -9276,6 +9279,9 @@
 "PSTL": {
 "beta": 0.784,
 "sector": "Real Estate"
+},
+"PSUS": {
+"sector": "Financial Services"
 },
 "PSX": {
 "beta": 0.693,
