@@ -3296,6 +3296,10 @@
 "beta": 0.995,
 "sector": "Financial Services"
 },
+"DCTH": {
+"beta": 0.596,
+"sector": "Healthcare"
+},
 "DD": {
 "beta": 1.056,
 "sector": "Basic Materials"
