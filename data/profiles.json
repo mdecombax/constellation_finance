@@ -5671,6 +5671,10 @@
 "beta": 0.703,
 "sector": "Financial Services"
 },
+"IBEX": {
+"beta": 0.708,
+"sector": "Technology"
+},
 "IBKR": {
 "beta": 1.322,
 "sector": "Financial Services"
@@ -11471,6 +11475,10 @@
 "beta": 2.227,
 "sector": "Healthcare"
 },
+"TXCP": {
+"beta": 0.622,
+"sector": "Financial Services"
+},
 "TXG": {
 "beta": 2.051,
 "sector": "Healthcare"
@@ -12598,6 +12606,10 @@
 "ZION": {
 "beta": 0.819,
 "sector": "Financial Services"
+},
+"ZJYL": {
+"beta": 7.322,
+"sector": "Healthcare"
 },
 "ZM": {
 "beta": 1.003,
