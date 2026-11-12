@@ -5903,6 +5903,9 @@
 "beta": 2.403,
 "sector": "Technology"
 },
+"INR": {
+"sector": "Energy"
+},
 "INSM": {
 "beta": 0.894,
 "sector": "Healthcare"
@@ -7574,6 +7577,9 @@
 "MTN": {
 "beta": 0.711,
 "sector": "Consumer Cyclical"
+},
+"MTRI": {
+"sector": "Healthcare"
 },
 "MTRN": {
 "beta": 1.033,
@@ -9450,6 +9456,9 @@
 "QUBT": {
 "beta": 3.698,
 "sector": "Technology"
+},
+"QUIT": {
+"sector": "Healthcare"
 },
 "QURE": {
 "beta": 0.869,
