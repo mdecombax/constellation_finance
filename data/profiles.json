@@ -10025,6 +10025,10 @@
 "beta": 1.024,
 "sector": "Real Estate"
 },
+"SBC": {
+"beta": 0.522,
+"sector": "Industrials"
+},
 "SBCF": {
 "beta": 0.893,
 "sector": "Financial Services"
@@ -12425,6 +12429,9 @@
 },
 "WVE": {
 "beta": -1.316,
+"sector": "Healthcare"
+},
+"WWB": {
 "sector": "Healthcare"
 },
 "WWD": {
