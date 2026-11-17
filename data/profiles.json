@@ -12073,6 +12073,9 @@
 "beta": 1.038,
 "sector": "Consumer Cyclical"
 },
+"VVVV": {
+"sector": "Healthcare"
+},
 "VVX": {
 "beta": 0.128,
 "sector": "Industrials"
