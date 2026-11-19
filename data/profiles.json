@@ -5644,6 +5644,10 @@
 "beta": 0.601,
 "sector": "Financial Services"
 },
+"HZN": {
+"beta": 0.621,
+"sector": "Utilities"
+},
 "HZO": {
 "beta": 1.554,
 "sector": "Consumer Cyclical"
@@ -10626,6 +10630,10 @@
 "SRXH": {
 "sector": "Consumer Defensive"
 },
+"SRZN": {
+"beta": 0.555,
+"sector": "Healthcare"
+},
 "SSB": {
 "beta": 0.718,
 "sector": "Financial Services"
@@ -11504,6 +11512,10 @@
 "beta": 0.168,
 "sector": "Utilities"
 },
+"TXR": {
+"beta": 1.413,
+"sector": "Basic Materials"
+},
 "TXRH": {
 "beta": 0.778,
 "sector": "Consumer Cyclical"
@@ -11993,6 +12005,10 @@
 "VRRM": {
 "beta": 0.425,
 "sector": "Technology"
+},
+"VRSA": {
+"beta": 1.038,
+"sector": "Financial Services"
 },
 "VRSK": {
 "beta": 0.726,
