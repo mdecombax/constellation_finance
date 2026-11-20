@@ -759,6 +759,9 @@
 "beta": -0.045,
 "sector": "Financial Services"
 },
+"ANT": {
+"sector": "Technology"
+},
 "AOD": {
 "beta": 0.91,
 "sector": "Financial Services"
@@ -1528,6 +1531,9 @@
 "BGC": {
 "beta": 0.978,
 "sector": "Financial Services"
+},
+"BGIN": {
+"sector": "Technology"
 },
 "BGSI": {
 "beta": 0.702,
@@ -12649,6 +12655,9 @@
 "ZM": {
 "beta": 1.003,
 "sector": "Technology"
+},
+"ZOAR": {
+"sector": "Healthcare"
 },
 "ZS": {
 "beta": 0.962,
