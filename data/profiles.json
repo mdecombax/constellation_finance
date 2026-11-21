@@ -7703,6 +7703,9 @@
 "beta": 0.028,
 "sector": "Healthcare"
 },
+"NANO": {
+"sector": "Technology"
+},
 "NAT": {
 "beta": -0.524,
 "sector": "Energy"
