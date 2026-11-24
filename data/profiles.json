@@ -1591,6 +1591,10 @@
 "beta": null,
 "sector": "Healthcare"
 },
+"BIP": {
+"beta": 1.034,
+"sector": "Utilities"
+},
 "BIPC": {
 "beta": 1.27,
 "sector": "Utilities"
