@@ -9458,6 +9458,9 @@
 "beta": 2.584,
 "sector": "Consumer Cyclical"
 },
+"QSPC": {
+"sector": "Industrials"
+},
 "QSR": {
 "beta": 0.546,
 "sector": "Consumer Cyclical"
