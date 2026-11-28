@@ -5174,6 +5174,10 @@
 "beta": 1.044,
 "sector": "Technology"
 },
+"GTN": {
+"beta": 1.019,
+"sector": "Communication Services"
+},
 "GTX": {
 "beta": 0.695,
 "sector": "Consumer Cyclical"
@@ -10439,6 +10443,10 @@
 "SMBK": {
 "beta": 0.73,
 "sector": "Financial Services"
+},
+"SMC": {
+"beta": 0.875,
+"sector": "Energy"
 },
 "SMCI": {
 "beta": 1.684,
